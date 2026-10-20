@@ -715,12 +715,12 @@ const ACTS={
       o.x=p.x+f*(62+Math.sin(a.t*9)*6);o.y=GY-150+Math.sin(a.t*14)*10;
       G.shake=Math.max(G.shake,.04);
       if(Math.random()<dt*12)G.parts.push({type:'spark',x:o.x+rnd(-60,60),y:o.y-rnd(40,160),vx:rnd(-160,160),vy:rnd(-220,-40),life:.35,max:.35,c:Math.random()<.5?'#3fe0a0':'#ffe066',s:12,g:0});},
-    end(p,a){const o=a.tgt;if(!o||o.ko||o.grabbed!==p.idx)return;p.act={type:'uncleThrow',t:0,dur:.8,at:0,slow:0,lock:true,fired:true,tgt:o,done:false};p.inv=.9;pop(p.x,p.y-330,'摔！','#ffe066');}},
+    end(p,a){const o=a.tgt;if(!o||o.ko||o.grabbed!==p.idx)return;p.act={type:'uncleThrow',t:0,dur:.8,at:0,slow:0,lock:true,fired:true,tgt:o,done:false,combo:true};p.inv=.9;pop(p.x,p.y-330,'摔！','#ffe066');}},
   uncleThrow:{dur:.8,at:0,slow:0,lock:true,fire(){},tick(p){const a=p.act,o=a.tgt,t=a.t,f=p.face;p.vx=0;if(a.done)return;
       let x,y;if(t<.35){const k=t/.35;x=p.x+f*(70-70*k);y=GY-210*Math.sin(k*Math.PI/2);}else{const k=Math.min(1,(t-.35)/.2);x=p.x+f*(130*k);y=GY-210*(1-k*k);}
       o.x=x;o.y=y;
       if(t>=.55){a.done=true;o.grabbed=-1;o.y=GY-20;o.inv=0;G.shake=.45;sfx('boom');burst(o.x,GY-6,'#cfc6ee',14,'dust');
-        G.parts.push({type:'ring',x:o.x,y:GY-10,life:.4,max:.4,c:'#3fe0a0',r:220});hit(o,p,14,f*320,-560,null,1.6);pop(o.x,o.y-300,'大掄臂！','#c8ffe6');}}},
+        G.parts.push({type:'ring',x:o.x,y:GY-10,life:.4,max:.4,c:'#3fe0a0',r:220});hit(o,p,14,f*320,-560,null,1.6);if(!a.combo)pop(o.x,o.y-300,'大掄臂！','#c8ffe6');}}},
   uncleCharge:{dur:1.5,at:0,slow:0,lock:true,fire(p){play('emagic3',.5,.8);p.act.absorb=0;pop(p.x,p.y-340,'集氣中…','#c8ffe6');},tick(p,dt){p.vx=0;
       if(Math.random()<dt*30){const a=rnd(0,7),r=rnd(110,170);G.parts.push({type:'spark',x:p.x+Math.cos(a)*r,y:p.y-150+Math.sin(a)*r*.8,vx:-Math.cos(a)*260,vy:-Math.sin(a)*200,life:.4,max:.4,c:Math.random()<.5?'#3fe0a0':'#ffe066',s:12,g:0});}},
     end(p,a){startAct(p,'uncleKick');p.act.absorb=a.absorb||0;}},
@@ -1000,7 +1000,7 @@ function updPlayer(p,dt,live){
 }
 // KOF-style body blocking: fighters can't walk through each other; walking into someone shoves them slowly.
 // Jumping over is still allowed (big height difference), and grabs / throws / KO bodies are left alone.
-var NOPUSH=['uncleThrow','uncleHold','papa3','papaRush'];
+var NOPUSH=['uncle1','uncleThrow','uncleHold','papa3','papaRush'];
 function pushApart(){const [a,b]=G.players;if(!a||!b||a.ko||b.ko||a.grabbed>=0||b.grabbed>=0)return;
   if((a.act&&NOPUSH.includes(a.act.type))||(b.act&&NOPUSH.includes(b.act.type)))return;
   if(Math.abs(a.y-b.y)>150)return;
@@ -1677,7 +1677,7 @@ addEventListener('keydown',e=>keyset(e,true));addEventListener('keyup',e=>keyset
 
 /* ---------- menu & screens ---------- */
 // face crop per character (centre x, centre y, half-size) as fractions of the image height/width
-var FACE={beast:[.48,.165,.085],knight:[.47,.25,.16],fairy:[.5,.13,.12],papa:[.5,.15,.12],mom:[.45,.16,.12],uncle:[.5,.08,.07],ice:[.5,.15,.1]};
+var FACE={beast:[.48,.165,.085],knight:[.47,.25,.16],fairy:[.5,.13,.12],papa:[.37,.118,.08],mom:[.45,.16,.12],uncle:[.5,.08,.07],ice:[.5,.15,.1]};
 var PORTRAIT={},PORTRAIT_C={};
 function makePortraits(){for(const k of ROSTER){const im=IMGS[k];if(PORTRAIT[k]||!im.naturalWidth)continue;const [fx,fy,fs]=FACE[k],H=im.naturalHeight,s=fs*H*2,c=document.createElement('canvas');
   c.width=c.height=180;const g=c.getContext('2d');g.drawImage(im,fx*im.naturalWidth-s/2,fy*H-s/2,s,s,0,0,180,180);PORTRAIT_C[k]=c;try{PORTRAIT[k]=c.toDataURL('image/png');}catch(e){PORTRAIT[k]=SRC[k];}}}
