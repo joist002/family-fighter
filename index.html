@@ -1672,15 +1672,23 @@ function buildPads(){padEls.forEach((el,i)=>{const d=CHARS[G.picks[i]];el.style.
   const st=el.querySelector('.stick'),knob=el.querySelector('.knob');let id=null,cx=0,cy=0,up=false;
   const move=e=>{const r=50,dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),k=len>r?r/len:1,nx=dx*k,ny=dy*k;knob.style.transform=`translate(${nx}px,${ny}px)`;
     let mx=nx/r;IN[i].mx=Math.abs(mx)<.22?0:mx;const my=ny/r;IN[i].my=Math.abs(my)<.25?0:my;const isUp=ny/r<-.55;if(isUp&&!up)IN[i].jump=true;up=isUp;};
-  st.addEventListener('pointerdown',e=>{e.preventDefault();if(id!==null)return;id=e.pointerId;try{st.setPointerCapture(id);}catch(_){}const b=st.querySelector('.base').getBoundingClientRect();cx=b.left+b.width/2;cy=b.top+b.height/2;move(e);});
+  st.addEventListener('pointerdown',e=>{e.preventDefault();id=e.pointerId;try{st.setPointerCapture(id);}catch(_){}const b=st.querySelector('.base').getBoundingClientRect();cx=b.left+b.width/2;cy=b.top+b.height/2;move(e);});
   st.addEventListener('pointermove',e=>{if(e.pointerId===id)move(e);});
   const rel=e=>{if(e.pointerId!==id)return;id=null;up=false;IN[i].mx=0;IN[i].my=0;knob.style.transform='';};
   st.addEventListener('pointerup',rel);st.addEventListener('pointercancel',rel);st.addEventListener('lostpointercapture',rel);
+  STICK_REL[i]={rel:e=>rel(e),all:()=>{if(id!==null)rel({pointerId:id});},id:()=>id};
   el.querySelectorAll('.b').forEach(b=>{const a=+b.dataset.a;
     b.addEventListener('pointerdown',e=>{e.preventDefault();if(a===4){const pl=G.players[i],v=pl&&VIDS[pl.d.key];if(v&&pl.meter>=100&&!pl.act){try{v.ultAt=performance.now();v.currentTime=0;const pr=v.play();pr&&pr.catch&&pr.catch(()=>{});}catch(_){}}}IN[i].press[a]=true;IN[i].hold[a]=true;b.classList.add('on');});
     const off=()=>{b.classList.remove('on');IN[i].hold[a]=false;};b.addEventListener('pointerup',off);b.addEventListener('pointercancel',off);b.addEventListener('pointerleave',off);});
 });}
 var lastSync=[{},{}];
+// safety net: if iPad never tells us a finger was lifted (slid off the screen, system gesture), free the stick anyway
+var STICK_REL=[null,null];
+['pointerup','pointercancel'].forEach(ev=>addEventListener(ev,e=>{STICK_REL.forEach(s=>{if(s&&s.id()===e.pointerId)s.rel(e);});},{capture:true}));
+addEventListener('touchend',e=>{if(!e.touches||e.touches.length===0){STICK_REL.forEach(s=>s&&s.all());document.querySelectorAll('.pad .b.on').forEach(b=>b.classList.remove('on'));IN.forEach((n,k)=>{if(!(k===1&&G.cpu))n.hold.fill(false);});}},{capture:true,passive:true});
+addEventListener('touchcancel',()=>STICK_REL.forEach(s=>s&&s.all()),{capture:true,passive:true});
+addEventListener('blur',()=>STICK_REL.forEach(s=>s&&s.all()));
+document.addEventListener('visibilitychange',()=>{if(document.hidden)STICK_REL.forEach(s=>s&&s.all());});
 function syncPads(){if(!G.players.length||G.mode==='end')return;const dim=!!(G.cutin&&(G.cutin.p.d.ultImg||G.cutin.p.d.ultVid));if(syncPads.dim!==dim){syncPads.dim=dim;padEls.forEach(e=>e.style.opacity=dim?'0':'');document.getElementById('pauseBtn').style.opacity=dim?'0':'';}G.players.forEach((p,i)=>{const el=padEls[i],s=lastSync[i];
   for(let a=0;a<4;a++){const v=p.cd[a]>0?(a===0?p.cd[0]/p.d.atkCd:p.cd[a]/p.d.skills[a-1][1]):0,r=Math.round(v*40)/40;if(s['c'+a]!==r){s['c'+a]=r;const b=el.querySelector(`[data-a="${a}"]`);if(b){b.style.setProperty('--cd',r);const c=b.querySelector('.cdn');if(c){const sec=p.cd[a]>.95?Math.ceil(p.cd[a]):0;c.textContent=sec?sec:'';}}}}
   const m=Math.round(p.meter)/100;if(s.m!==m){s.m=m;const b=el.querySelector('[data-a="4"]');if(b){b.style.setProperty('--m',m);b.classList.toggle('ready',m>=1);}}});}
