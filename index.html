@@ -998,6 +998,18 @@ function updPlayer(p,dt,live){
   if(p.frizz>0&&Math.random()<dt*14)G.parts.push({type:'spark',x:p.x+rnd(-50,50),y:p.y-d.h*d.headY+rnd(-40,20),vx:rnd(-200,200),vy:rnd(-260,0),life:.25,max:.25,c:'#9be8ff',s:10,g:0});
   if(p.heal>0&&Math.random()<dt*20)G.parts.push({type:'heart',x:p.x+rnd(-50,50),y:p.y-rnd(20,200),vx:0,vy:-120,life:.7,max:.7,c:'#b9ffcf',s:9,g:0,rot:0,vr:0});
 }
+// KOF-style body blocking: fighters can't walk through each other; walking into someone shoves them slowly.
+// Jumping over is still allowed (big height difference), and grabs / throws / KO bodies are left alone.
+var NOPUSH=['uncleThrow','uncleHold','papa3','papaRush'];
+function pushApart(){const [a,b]=G.players;if(!a||!b||a.ko||b.ko||a.grabbed>=0||b.grabbed>=0)return;
+  if((a.act&&NOPUSH.includes(a.act.type))||(b.act&&NOPUSH.includes(b.act.type)))return;
+  if(Math.abs(a.y-b.y)>150)return;
+  const W=84,dx=b.x-a.x,ov=W-Math.abs(dx);if(ov<=0)return;
+  const dir=dx!==0?Math.sign(dx):(a.face||1),lo=60,hi=VW-60;
+  let ma=ov/2,mb=ov/2;
+  if(dir>0){if(a.x-ma<lo){mb+=ma-(a.x-lo);ma=a.x-lo;}if(b.x+mb>hi){ma+=mb-(hi-b.x);mb=hi-b.x;}}
+  else{if(a.x+ma>hi){mb+=ma-(hi-a.x);ma=hi-a.x;}if(b.x-mb<lo){ma+=mb-(b.x-lo);mb=b.x-lo;}}
+  a.x-=dir*Math.max(0,ma);b.x+=dir*Math.max(0,mb);}
 function overlap(a,b){return a.x1<b.x2&&a.x2>b.x1&&a.y1<b.y2&&a.y2>b.y1}
 function step(dt){
   G.time+=dt;
@@ -1013,6 +1025,7 @@ function step(dt){
   const live=G.mode==='fight';
   if(G.cpu&&G.players[1])aiThink(G.players[1],sdt);
   G.players.forEach(p=>updPlayer(p,sdt,live));
+  pushApart();
   // hitboxes
   G.boxes=G.boxes.filter(b=>{b.life-=sdt;const o=opp(b.o);if(!b.done&&overlap(b,hurt(o))){b.done=true;hit(o,b.o,b.dmg,b.kbx,b.kby,b.extra);}return b.life>0&&!b.done;});
   // projectiles
