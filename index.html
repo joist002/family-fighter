@@ -418,22 +418,22 @@ var CHARS={
   knight:{key:'knight',name:'菠菠-雷鐮騎士',ultVid:'a/kn_ultvid.mp4?v=a5bb2019',ultSnd:'knUlt',tag:'近戰・力氣大',color:'#5fd4ff',light:'#c9f3ff',h:262,speed:300,jump:1030,grav:2400,dbl:false,natural:-1,headY:.76,headX:.02,
     atkCd:.38,skills:[['雷光迴旋',8],['新月雷斬',6],['守護毛毯',7]],ult:'萬雷星鐮・天降',btn:['迴旋','雷斬','毛毯'],
     desc:['大旋風轉 3 秒，可以邊轉邊走','連射三道月牙雷光','舉毛毯無敵往前衝，撞飛對手'],udesc:'跳起來劈地，對手被電成炸毛頭'},
-  beast:{key:'beast',name:'菠菠-陀螺獸鬥士',tag:'雙劍・火與水',color:'#ff6a3d',light:'#ffd6c2',h:262,speed:320,jump:1000,grav:2300,dbl:false,natural:1,headY:.82,headX:0,
+  beast:{key:'beast',ultSnd:'ubeast',name:'菠菠-陀螺獸鬥士',tag:'雙劍・火與水',color:'#ff6a3d',light:'#ffd6c2',h:262,speed:320,jump:1000,grav:2300,dbl:false,natural:1,headY:.82,headX:0,
     atkCd:.36,skills:[['三段斬',7],['火焰獅子斬',6],['水狼衝鋒斬',6]],ult:'獸魂陀螺・雙星環',btn:['三段','獅子','水狼'],
     desc:['連按三下：往上挑飛 → 跳空斬 → X 字下劈','揮劍後火獅子延遲撲出，中距離','弧形跳躍衝刺，水狼一起撲上去'],udesc:'射出火獅與水狼陀螺，圍著對手轉圈一直攻擊'},
-  fairy:{key:'fairy',name:'芯芯-愛心仙子',tag:'遠程・會飛・會補血',color:'#ff7cc0',light:'#ffd3ea',h:262,speed:340,jump:960,grav:1900,dbl:true,natural:1,headY:.88,headX:.02,
+  fairy:{key:'fairy',ultSnd:'ufairy',name:'芯芯-愛心仙子',tag:'遠程・會飛・會補血',color:'#ff7cc0',light:'#ffd3ea',h:262,speed:340,jump:960,grav:1900,dbl:true,natural:1,headY:.88,headX:.02,
     atkCd:.85,skills:[['愛心連射',5],['蝴蝶旋風',7],['治癒花露',10]],ult:'心願・粉紅流星雨',btn:['連射','旋風','花露'],
     desc:['魔法杖連射三顆愛心，速度各不同','飛起來，颳起花瓣龍捲風','飛起來慢慢補血（被打會中斷）'],udesc:'閉眼浮空，流星雨落下，對手變成小兔子'},
-  papa:{key:'papa',name:'把把',tag:'扇子高手・會集氣',color:'#ff5a4e',light:'#ffd2cb',h:300,speed:320,jump:1000,grav:2300,dbl:false,natural:-1,headY:.88,headX:0,
+  papa:{key:'papa',ultSnd:'upapa',name:'把把',tag:'扇子高手・會集氣',color:'#ff5a4e',light:'#ffd2cb',h:300,speed:320,jump:1000,grav:2300,dbl:false,natural:-1,headY:.88,headX:0,
     atkCd:.36,skills:[['飛天靈扇',5],['扇子亂舞',6],['天外飛仙',8]],ult:'玉樹臨風',btn:['靈扇','亂舞','飛仙'],ultImg:'papaUlt',ultFreeze:1.7,
     desc:['按住集氣，放開射出扇子，越久越大','往前衝，扇子連打四下','跳出畫面，一秒後像隕石衝下來'],udesc:'射出巨大唇印迷倒對手，再衝過去一套連招'},
-  mom:{key:'mom',name:'媽咪',tag:'遠程・控場',color:'#ffbf3a',light:'#fff0c4',h:290,speed:300,jump:950,grav:2200,dbl:false,natural:1,headY:.8,headX:0,
+  mom:{key:'mom',ultSnd:'umom',name:'媽咪',tag:'遠程・控場',color:'#ffbf3a',light:'#fff0c4',h:290,speed:300,jump:950,grav:2200,dbl:false,natural:1,headY:.8,headX:0,
     atkCd:.95,skills:[['手術小刀',5],['召喚大白',8],['以德服人',9]],ult:'碎碎念',btn:['小刀','大白','德服'],ultImg:'momUlt',ultFreeze:1.5,
     desc:['跳起來射出好幾把小刀','召喚大白車衝過去撞人','光波打中會笑咪咪走過來'],udesc:'念咒一秒（會被打斷），然後一直發出音波'},
-  uncle:{key:'uncle',name:'阿伯',tag:'近身格鬥・摔技',color:'#3fe0a0',light:'#c8ffe6',h:300,speed:330,jump:980,grav:2300,dbl:false,natural:1,headY:.9,headX:0,
+  uncle:{key:'uncle',ultSnd:'uuncle',name:'阿伯',tag:'近身格鬥・摔技',color:'#3fe0a0',light:'#c8ffe6',h:300,speed:330,jump:980,grav:2300,dbl:false,natural:1,headY:.9,headX:0,
     atkCd:.32,skills:[['閃身步',1],['風擺柳碎步',3.5],['大掄臂',4]],ult:'浪子踢球',btn:['閃身','碎步','掄臂'],
     desc:['往前閃一小段，閃過所有攻擊','搖擺碎步往前，連打身邊的人三下','貼近抓住對手，丟上天再摔下來'],udesc:'集氣時無敵，被打會吸收傷害，踢出 1.5 倍反擊'},
-  ice:{key:'ice',name:'芯芯-冰之公主',tag:'遠程・冰凍控場',color:'#7fd0ff',light:'#e2f6ff',h:262,speed:310,jump:980,grav:2200,dbl:false,natural:1,headY:.88,headX:0,
+  ice:{key:'ice',ultSnd:'uice',name:'芯芯-冰之公主',tag:'遠程・冰凍控場',color:'#7fd0ff',light:'#e2f6ff',h:262,speed:310,jump:980,grav:2200,dbl:false,natural:1,headY:.88,headX:0,
     atkCd:1.05,skills:[['召喚雪人',9],['滑冰',2.5],['冰之飛行',12]],ult:'冰雪暴',btn:['雪人','滑冰','飛行'],ultImg:'iceUlt',ultFreeze:1.5,
     desc:['小雪人慢慢走，碰到會被冰凍兩秒','冰面往後快速滑開，留下殘影','飛上天 5 秒，搖桿上下控制高度，普攻變冰椎'],udesc:'召喚巨大冰雪暴往前捲走敵人'}
 };
@@ -528,7 +528,7 @@ function tone(f,d,type='sine',f2,v=.12,delay=0){if(!AC||muted)return;const t=AC.
 var NB=null;function noise(d,v=.2,fc=1200){if(!AC||muted)return;if(!NB){NB=AC.createBuffer(1,AC.sampleRate,AC.sampleRate);const a=NB.getChannelData(0);for(let i=0;i<a.length;i++)a[i]=Math.random()*2-1;}
   const s=AC.createBufferSource(),f=AC.createBiquadFilter(),g=AC.createGain(),t=AC.currentTime;s.buffer=NB;f.type='lowpass';f.frequency.value=fc;g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.001,t+d);
   s.connect(f);f.connect(g);g.connect(AC.destination);s.start(t);s.stop(t+d);}
-var SFX={hit(){noise(.12,.22,900);tone(260,.12,'square',120,.06)},swing(){noise(.09,.08,3200)},shoot(){tone(880,.12,'triangle',1500,.07)},
+var SFX={hit(){noise(.12,.22,900);tone(260,.12,'square',120,.06)},swing(){if(play('whoosh'+(1+Math.random()*6|0),.5,.94+Math.random()*.12))return;noise(.09,.08,3200)},slice(){if(play('slice'+(1+Math.random()*4|0),.55,.95+Math.random()*.1))return;noise(.09,.08,3200)},shoot(){tone(880,.12,'triangle',1500,.07)},
   heal(){if(play('emagic2',.75))return;[660,880,1180].forEach((f,i)=>tone(f,.25,'sine',null,.08,i*.07))},block(){tone(520,.16,'square',320,.08)},jump(){tone(380,.12,'sine',720,.05)},
   ult(){if(play('emagic3',.9))return;tone(180,.9,'sawtooth',760,.06);[523,659,784,1047].forEach((f,i)=>tone(f,.3,'triangle',null,.08,.2+i*.1))},boom(){if(play('crash',.9))return;noise(.7,.35,500);tone(90,.6,'sine',40,.3)},
   ko(){if(play('ko',1))return;[784,659,523,392].forEach((f,i)=>tone(f,.25,'triangle',null,.09,i*.12))},count(){tone(660,.14,'square',null,.06)},go(){tone(990,.45,'square',null,.07)},
@@ -536,7 +536,7 @@ var SFX={hit(){noise(.12,.22,900);tone(260,.12,'square',120,.06)},swing(){noise(
   wind(){if(play('ewind',.5,.92+Math.random()*.16))return;noise(.5,.12,1800)}};
 var sfx=k=>{try{SFX[k]()}catch(e){}};
 /* recorded sound effects */
-var SAMPLE_SRC={ucombo:'a/s_ucombo.mp3?v=44b3bfe7',eice:'a/s_eice.mp3?v=4502f59e',efire:'a/s_efire.mp3?v=96f59ea8',ethunder:'a/s_ethunder.mp3?v=d3609110',ewind:'a/s_ewind.mp3?v=14c53e83',emagic:'a/s_emagic.mp3?v=8a4d20d0',emagic2:'a/s_emagic2.mp3?v=8223aa19',emagic3:'a/s_emagic3.mp3?v=3839c049',eimpact:'a/s_eimpact.mp3?v=5f1ad3db',ewolf:'a/s_ewolf.mp3?v=1a2e2c3c',knUlt:'a/s_knultvid.mp3?v=ed34cdfc',light1:'a/s_light1.mp3?v=5efc24d0',light2:'a/s_light2.mp3?v=8fc5d1aa',mid:'a/s_mid.mp3?v=76c46374',heavy:'a/s_heavy.mp3?v=fa95f64f',crash:'a/s_crash.mp3?v=1ce0e9f9',grab:'a/s_grab.mp3?v=66dce83a',ko:'a/s_ko.mp3?v=e628653c',round2:'a/s_round2.mp3?v=b68abfb7',fight:'a/s_fight.mp3?v=fd2b26fb'};
+var SAMPLE_SRC={tiger:'a/s_tiger.mp3?v=ca0f2960',uice:'a/s_uice.mp3?v=76c814f4',slice1:'a/s_slice1.mp3?v=15c51c3a',slice2:'a/s_slice2.mp3?v=d094b548',slice3:'a/s_slice3.mp3?v=40d1e5ed',slice4:'a/s_slice4.mp3?v=dc2ade34',efire3:'a/s_efire3.mp3?v=864af630',efire5:'a/s_efire5.mp3?v=789abe3b',uuncle:'a/s_uuncle.mp3?v=306ada6f',umom:'a/s_umom.mp3?v=57632af4',ufairy:'a/s_ufairy.mp3?v=b76b5370',ubeast:'a/s_ubeast.mp3?v=40aec050',upapa:'a/s_upapa.mp3?v=c6bc3646',round3:'a/s_round3.mp3?v=479b8985',whoosh1:'a/s_whoosh1.mp3?v=491c9a70',whoosh2:'a/s_whoosh2.mp3?v=37ecedfb',whoosh3:'a/s_whoosh3.mp3?v=94208711',whoosh4:'a/s_whoosh4.mp3?v=9c59d361',whoosh5:'a/s_whoosh5.mp3?v=73f88fae',whoosh6:'a/s_whoosh6.mp3?v=0ef137c1',ucombo:'a/s_ucombo.mp3?v=44b3bfe7',eice:'a/s_eice.mp3?v=4502f59e',efire:'a/s_efire.mp3?v=96f59ea8',ethunder:'a/s_ethunder.mp3?v=d3609110',ewind:'a/s_ewind.mp3?v=14c53e83',emagic:'a/s_emagic.mp3?v=8a4d20d0',emagic2:'a/s_emagic2.mp3?v=8223aa19',emagic3:'a/s_emagic3.mp3?v=3839c049',eimpact:'a/s_eimpact.mp3?v=5f1ad3db',ewolf:'a/s_ewolf.mp3?v=1a2e2c3c',knUlt:'a/s_knultvid.mp3?v=ed34cdfc',light1:'a/s_light1.mp3?v=5efc24d0',light2:'a/s_light2.mp3?v=8fc5d1aa',mid:'a/s_mid.mp3?v=76c46374',heavy:'a/s_heavy.mp3?v=fa95f64f',crash:'a/s_crash.mp3?v=1ce0e9f9',grab:'a/s_grab.mp3?v=66dce83a',ko:'a/s_ko.mp3?v=e628653c',round2:'a/s_round2.mp3?v=b68abfb7',fight:'a/s_fight.mp3?v=fd2b26fb'};
 var SAMPLE={};
 function loadSamples(){if(!AC||loadSamples.done)return;loadSamples.done=true;
   for(const k in SAMPLE_SRC)fetch(SAMPLE_SRC[k]).then(r=>r.arrayBuffer()).then(b=>new Promise((ok,no)=>{const pr=AC.decodeAudioData(b,ok,no);pr&&pr.then&&pr.then(ok,no);})).then(buf=>{SAMPLE[k]=buf;}).catch(()=>{});}
@@ -649,27 +649,27 @@ const ACTS={
   beast0:{dur:.3,at:.1,slow:.3,fire(p){const r=p.anim.row,f=p.face,last=r===2,c=last?'#3fa8ff':'#ff5a3a';
       box(p,{x1:p.x+f*10,x2:p.x+f*178,y1:p.y-240,y2:p.y-20,dmg:last?5:4,kbx:f*(last?380:140),kby:last?-260:-40});
       G.parts.push({type:'slash',x:p.x+f*85,y:p.y-[165,110,150][r]*CS,f,life:.22,max:.22,c,v:r===1?-1:1,rot:[-.3,.35,0][r],sc:last?1.25:1});
-      for(let i=0;i<5;i++)G.parts.push({type:'spark',x:p.x+f*rnd(90,170),y:p.y-rnd(90,190)*CS,vx:f*rnd(200,500),vy:rnd(-200,100),life:.2,max:.2,c:last?'#bfe6ff':'#ffd0a0',s:12,g:0});sfx('swing');}},
+      for(let i=0;i<5;i++)G.parts.push({type:'spark',x:p.x+f*rnd(90,170),y:p.y-rnd(90,190)*CS,vx:f*rnd(200,500),vy:rnd(-200,100),life:.2,max:.2,c:last?'#bfe6ff':'#ffd0a0',s:12,g:0});sfx('slice');}},
   beast1:{dur:.42,at:.14,slow:0,lock:true,fire(p){const f=p.face;
       box(p,{x1:p.x,x2:p.x+f*190,y1:p.y-300,y2:p.y+10,dmg:5,kbx:f*110,kby:-1080});
       G.parts.push({type:'slash',x:p.x+f*70,y:p.y-150*CS,f,life:.28,max:.28,c:'#ff5a3a',v:-1,rot:-.9,sc:1.3});
-      emb(p.x+f*120,p.y-200,14);sfx('swing');sfx('wind');},
+      emb(p.x+f*120,p.y-200,14);sfx('slice');sfx('wind');},
     end(p,a){if(a.buf)beastNext(p);}},
   beastT2:{dur:.5,at:0,slow:0,lock:true,fire(p){const o=opp(p);p.face=o.x>=p.x?1:-1;p.vy=-1250;p.onGround=false;p.vx=Math.max(-720,Math.min(720,(o.x-p.face*70-p.x)/.4));p.act.n=0;sfx('jump');},
     tick(p){const a=p.act;if(!a.n&&a.t>=.2){a.n=1;const f=p.face;box(p,{x1:p.x-60*f,x2:p.x+f*205,y1:p.y-330,y2:p.y+60,dmg:5,kbx:f*160,kby:-640});
-        G.parts.push({type:'slash',x:p.x+f*80,y:p.y-150*CS,f,life:.26,max:.26,c:'#3fa8ff',v:1,rot:.25,sc:1.35});sfx('swing');}
+        G.parts.push({type:'slash',x:p.x+f*80,y:p.y-150*CS,f,life:.26,max:.26,c:'#3fa8ff',v:1,rot:.25,sc:1.35});sfx('slice');}
       if(Math.random()<.5)G.parts.push({type:'ghost',ch:'beast',x:p.x,y:p.y,f:p.face,life:.2,max:.2,pose:POSE.beast(p)});},
     end(p,a){if(a.buf)beastNext(p);}},
   beastT3:{dur:99,at:0,slow:0,lock:true,fire(p){const f=p.face;p.vy=Math.max(p.vy,1000);if(p.onGround){p.onGround=false;p.y=GY-1;}p.vx=f*160;
       box(p,{x1:p.x-30*f,x2:p.x+f*225,y1:p.y-330,y2:p.y+220,dmg:7,kbx:f*260,kby:1500,extra:t=>{t.bounce=true;},life:.2});
       G.parts.push({type:'slash',x:p.x+f*95,y:p.y-140*CS,f,life:.32,max:.32,c:'#ff5a3a',v:1,rot:.8,sc:1.45});
       G.parts.push({type:'slash',x:p.x+f*95,y:p.y-140*CS,f,life:.32,max:.32,c:'#3fa8ff',v:-1,rot:-.8,sc:1.45});
-      G.parts.push({type:'impact',x:p.x+f*120,y:p.y-150,life:.28,max:.28,c:'#ffffff',r:95,rot:.78});sfx('swing');sfx('shoot');},
+      G.parts.push({type:'impact',x:p.x+f*120,y:p.y-150,life:.28,max:.28,c:'#ffffff',r:95,rot:.78});sfx('slice');sfx('shoot');},
     tick(p){if(p.act.t>1.3)p.act.dur=0;if(Math.random()<.6)G.parts.push({type:'ghost',ch:'beast',x:p.x,y:p.y,f:p.face,life:.18,max:.18,pose:POSE.beast(p)});}},
   beastLand:{dur:.32,at:0,slow:0,lock:true,fire(){}},
   beast2:{dur:.8,at:.3,slow:0,lock:true,fire(p){const f=p.face;G.fx.push({type:'lion',o:p,x:p.x+f*230,y:p.y-150,dir:f,t:0,hit:false});
-      G.parts.push({type:'slash',x:p.x+f*80,y:p.y-130*CS,f,life:.26,max:.26,c:'#ff5a3a',v:1,rot:.35,sc:1.25});emb(p.x+f*150,p.y-140,16);sfx('swing');sfx('wind');play('efire',.9);}},
-  beast3:{dur:.8,at:.1,slow:0,lock:true,fire(p){p.vy=-760;p.onGround=false;p.act.hit=false;sfx('wind');sfx('jump');play('ewolf',.9);
+      G.parts.push({type:'slash',x:p.x+f*80,y:p.y-130*CS,f,life:.26,max:.26,c:'#ff5a3a',v:1,rot:.35,sc:1.25});emb(p.x+f*150,p.y-140,16);sfx('slice');play('efire5',.8);play('tiger',1);}},
+  beast3:{dur:.8,at:.1,slow:0,lock:true,fire(p){p.vy=-760;p.onGround=false;p.act.hit=false;sfx('wind');sfx('slice');sfx('jump');play('ewolf',.9);
       G.parts.push({type:'slash',x:p.x+p.face*60,y:p.y-150*CS,f:p.face,life:.3,max:.3,c:'#3fa8ff',v:-1,rot:-.4,sc:1.4});},
     tick(p){const a=p.act,f=p.face;p.vx=f*(a.t<.62?980:120);
       if(Math.random()<.7)G.parts.push({type:'ghost',ch:'beast',x:p.x,y:p.y,f,life:.24,max:.24,pose:POSE.beast(p)});
@@ -771,7 +771,7 @@ const ACTS={
         hit(o,p,last?9:3,dir*(last?360:30),last?-1250:0,last?t=>{t.down=.7;}:null,last?2.2:1);G.parts.push({type:'slash',x:p.x+dir*90,y:p.y-(last?170:110+(a.n%3)*45),f:dir,life:.18,max:.18,c:'#ff5a4e',v:a.n%2?1:-1,rot:last?-.9:rnd(-.6,.6),sc:last?1.5:1});sfx('swing');
         if(last){o.charm=0;G.shake=.4;pop(o.x,o.y-320,'玉樹臨風！','#ffd25a');p.act=null;}}}}},
   knight0:{dur:.3,at:.1,slow:.3,fire(p){const f=p.face;box(p,{x1:p.x+f*10,x2:p.x+f*170,y1:p.y-230,y2:p.y-20,dmg:5,kbx:f*320,kby:-160});
-    const r=p.anim.row;G.parts.push({type:'slash',x:p.x+f*80,y:p.y-[150,110,175][r]*CS,f,life:.22,max:.22,c:p.d.color,v:r===1?-1:1,rot:[-.2,.35,.8][r],sc:r===2?1.2:1});sfx('swing');}},
+    const r=p.anim.row;G.parts.push({type:'slash',x:p.x+f*80,y:p.y-[150,110,175][r]*CS,f,life:.22,max:.22,c:p.d.color,v:r===1?-1:1,rot:[-.2,.35,.8][r],sc:r===2?1.2:1});sfx('slice');}},
   knight1:{dur:3,at:.02,slow:.75,fire(p){p.act.next=0;sfx('wind');play('ethunder',.4,1.4);},
     tick(p){if(p.act.t<p.act.next)return;p.act.next+=.4;const o=opp(p),dir=o.x>=p.x?1:-1;
       box(p,{x1:p.x-170,x2:p.x+170,y1:p.y-240,y2:p.y+10,dmg:2,kbx:dir*260,kby:-160});
@@ -817,7 +817,7 @@ function startAct(p,type){const def=ACTS[type];
   if(type==='uncle2')p.anim.wil=(p.anim.wil||0)+1;
   if(type==='papa0'||type==='knight0'||type==='uncle0'||type==='beast0'){p.anim.row=G.time-p.anim.rowT<.75?(p.anim.row+1)%3:0;p.anim.rowT=G.time;}p.act={type,t:0,dur:def.dur,at:def.at,slow:def.slow,lock:!!def.lock,fired:false};}
 function startUlt(p){p.meter=0;p.act=null;G.freeze=p.d.ultFreeze||1.15;const uv=vidFor(p.d.key);
-  if(uv){G.freeze=Math.min(3.1,uv.duration||3);try{uv.currentTime=0;const pr=uv.play();pr&&pr.catch&&pr.catch(()=>{});}catch(e){}if(!play(p.d.ultSnd,1)){sfx('ult');voice(p,4);}}else{sfx('ult');voice(p,4);}
+  if(uv){G.freeze=Math.min(3.1,uv.duration||3);try{uv.currentTime=0;const pr=uv.play();pr&&pr.catch&&pr.catch(()=>{});}catch(e){}if(!play(p.d.ultSnd,1)){sfx('ult');voice(p,4);}}else{if(!(p.d.ultSnd&&play(p.d.ultSnd,1)))sfx('ult');voice(p,4);}
   G.cutin={p,dur:G.freeze,go(){const o=opp(p);
     if(p.d.key==='uncle'){startAct(p,'uncleCharge');return;}
     if(p.d.key==='ice'){startAct(p,'iceCast');return;}
@@ -853,7 +853,7 @@ function strokeBolt(pts,c,w){const path=()=>{ctx.beginPath();pts.forEach(([x,y],
 function updFx(sdt){const add=[];G.fx=G.fx.filter(e=>{e.t+=sdt;const o=opp(e.o);
   if(e.type==='lion'){if(e.t<.38)e.x+=e.dir*170*sdt;
     if(Math.random()<sdt*50)G.parts.push({type:'spark',x:e.x+rnd(-120,120),y:e.y+rnd(-100,100),vx:e.dir*rnd(60,300),vy:rnd(-260,-40),life:.4,max:.4,c:Math.random()<.5?'#ffb36b':'#ff5a1a',s:12,g:0});
-    if(!e.hit&&e.t>=.38){e.hit=true;play('efire',.75,.85);G.shake=Math.max(G.shake,.38);G.flash=.14;G.flashCol='#ff8a3a';sfx('boom');emb(e.x+e.dir*60,e.y,28);
+    if(!e.hit&&e.t>=.38){e.hit=true;play('efire3',.9);G.shake=Math.max(G.shake,.38);G.flash=.14;G.flashCol='#ff8a3a';sfx('boom');emb(e.x+e.dir*60,e.y,28);
       G.parts.push({type:'ring',x:e.x+e.dir*40,y:e.y,life:.42,max:.42,c:'#ff7a2a',r:280});
       if(Math.abs(o.x-e.x)<215&&o.y>e.y-130&&o.y<e.y+340)hit(o,e.o,12,e.dir*560,-580,t=>pop(t.x,t.y-300,'獅吼！','#ffd6c2'));}
     return e.t<.95;}
@@ -1006,7 +1006,7 @@ function step(dt){
   if(G.hitstop>0&&(G.mode==='fight'||G.mode==='ko')){G.hitstop-=dt;G.shake=Math.max(0,G.shake-dt*.5);return;}
   const sdt=G.slow>0?dt*.35:dt;G.slow-=dt;G.shake=Math.max(0,G.shake-dt);G.flash=Math.max(0,G.flash-dt);
   if(G.mode==='intro'){const before=G.phaseT;G.phaseT+=dt;
-    if(before<.05&&G.phaseT>=.05&&G.round===2)play('round2',1);if(before<1.0&&G.phaseT>=1.0&&G.round!==2)sfx('count');if(before<1.6&&G.phaseT>=1.6){if(!play('fight',1))sfx('go');}if(G.phaseT>=2.2)G.mode='fight';}
+    if(before<.05&&G.phaseT>=.05&&G.round===2)play('round2',1);if(before<.05&&G.phaseT>=.05&&G.round===3)play('round3',1);if(before<1.0&&G.phaseT>=1.0&&G.round===1)sfx('count');if(before<1.6&&G.phaseT>=1.6){if(!play('fight',1))sfx('go');}if(G.phaseT>=2.2)G.mode='fight';}
   else if(G.mode==='fight'){G.timer-=sdt;if(G.timer<=0){G.timer=0;timeUp();}}
   else if(G.mode==='ko'){G.phaseT+=dt;if(G.phaseT>3)endRound();}
   if(!['intro','fight','ko'].includes(G.mode))return;
@@ -1794,7 +1794,7 @@ try{window.claude&&window.claude.hot&&window.claude.hot.snapshot&&window.claude.
 if(window.claude&&window.claude.hot&&window.claude.hot.ready)window.claude.hot.ready(boot);else boot((window.claude&&window.claude.hot&&window.claude.hot.data)||{});
 
 // handles for testing from the console
-var ASSETS=["a/knight.webp?v=18de0519", "a/fairy.webp?v=875183b4", "a/papa.webp?v=217845ce", "a/papault.webp?v=55d7fba8", "a/mom.webp?v=3f4a6d68", "a/momult.webp?v=a7ee77aa", "a/uncle.webp?v=5386f82c", "a/ice.webp?v=954f2492", "a/iceult.webp?v=60be8c76", "a/beast.webp?v=4cdb56c0", "a/bg_ice.webp?v=81e575b5", "a/bg_bamboo.webp?v=e0f9b406", "a/bg_rose.webp?v=5a61c745", "a/bg_temple.webp?v=f5b8293d", "a/bg_sky.webp?v=4afb77c2", "a/bg_arena.webp?v=0e22dffd", "a/sel_poster.jpg?v=ab606b76", "a/sel_full.webp?v=b15ac0ca", "a/v1.mp3?v=30f78591", "a/v2.mp3?v=c5c965a2", "a/v3.mp3?v=cf68a0b6", "a/vu.mp3?v=d05c33f2", "a/k1.mp3?v=1b6364c6", "a/k2.mp3?v=3eafe2b5", "a/k3.mp3?v=98ef01ac", "a/ku.mp3?v=edb01913", "a/p1.mp3?v=e16bd158", "a/p2.mp3?v=544e2ffd", "a/p3.mp3?v=bac0293e", "a/pu.mp3?v=4a2c0f2c", "a/m1.mp3?v=5ab333b3", "a/m3.mp3?v=2c43bf15", "a/mu.mp3?v=a1e104c1", "a/u1.mp3?v=bc4e3f22", "a/u2.mp3?v=20c0ae7f", "a/u3.mp3?v=312837a4", "a/uu.mp3?v=37a745ab", "a/pa_fly.webp?v=3bb5a5ae", "a/pa_hurt.webp?v=93bebb77", "a/pa_walk.webp?v=dd2f0afa", "a/pa_fan.webp?v=c04fc6b1", "a/pa_dance.webp?v=3b4cc1f7", "a/pa_jump.webp?v=15fae733", "a/pa_atk.webp?v=e297b1ff", "a/kn_win.webp?v=f4f7aebf", "a/kn_blanket.webp?v=0c44d772", "a/kn_cres.webp?v=bf88b903", "a/kn_hurt.webp?v=81de04c5", "a/kn_walk.webp?v=017a03f5", "a/kn_ult.webp?v=d3b0c388", "a/kn_idle.webp?v=58560ced", "a/kn_spin.webp?v=367e6144", "a/kn_jump.webp?v=d8b76c38", "a/kn_atk.webp?v=d53bd228", "a/un_dodge.webp?v=4cfadca1", "a/un_willow.webp?v=b99820b2", "a/un_win.webp?v=b598acc7", "a/un_hurt.webp?v=e2019d44", "a/un_walk.webp?v=b21186e4", "a/un_idle.webp?v=9478638e", "a/un_kick.webp?v=1fe935fe", "a/un_grab.webp?v=9175575e", "a/un_jump.webp?v=0e516ea7", "a/un_atk.webp?v=bacc6974", "a/fa_shot.webp?v=f4862d15", "a/fa_win.webp?v=718762b9", "a/fa_tornfx.webp?v=33b0ee55", "a/fa_hurt.webp?v=f625ca11", "a/fa_walk.webp?v=01105108", "a/fa_ult.webp?v=8151d5ff", "a/fa_idle.webp?v=a181035a", "a/fa_tornado.webp?v=b7e91daf", "a/fa_jump.webp?v=7d3b0748", "a/fa_heal.webp?v=5dfb8bad", "a/fa_atk.webp?v=5e6a1e05", "a/ic_win2.webp?v=02f02966", "a/ic_skate.webp?v=8b2554be", "a/ic_shot.webp?v=2d6979c4", "a/ic_win.webp?v=a76ebab9", "a/ic_fly.webp?v=0e4b8af8", "a/ic_snow.webp?v=2239f219", "a/ic_hurt.webp?v=90e026f6", "a/ic_walk.webp?v=a1725f82", "a/ic_ult.webp?v=192f0b99", "a/ic_storm.webp?v=79f6eb9c", "a/ic_summon.webp?v=74380556", "a/ic_jump.webp?v=57e3d794", "a/be_tri.webp?v=0a007b8e", "a/be_wolf.webp?v=d78ab6fe", "a/be_win.webp?v=4438b7c4", "a/be_hurt.webp?v=dd59e79f", "a/be_walk.webp?v=c2514607", "a/be_ult.webp?v=7492526e", "a/be_topfx.webp?v=7a5ec0a1", "a/be_lion.webp?v=8eb66b23", "a/be_idle.webp?v=eae08a20", "a/be_jump.webp?v=c236328d", "a/be_lionfx.webp?v=43abb0db", "a/be_atk.webp?v=76880205", "a/s_ewolf.mp3?v=1a2e2c3c", "a/s_efire.mp3?v=96f59ea8", "a/s_mid.mp3?v=76c46374", "a/s_light2.mp3?v=8fc5d1aa", "a/s_ucombo.mp3?v=44b3bfe7", "a/s_emagic3.mp3?v=3839c049", "a/s_ewind.mp3?v=14c53e83", "a/s_eice.mp3?v=4502f59e", "a/s_heavy.mp3?v=fa95f64f", "a/s_emagic2.mp3?v=8223aa19", "a/s_fight.mp3?v=fd2b26fb", "a/s_round2.mp3?v=b68abfb7", "a/s_grab.mp3?v=66dce83a", "a/s_light1.mp3?v=5efc24d0", "a/s_ko.mp3?v=e628653c", "a/s_emagic.mp3?v=8a4d20d0", "a/s_crash.mp3?v=1ce0e9f9", "a/s_ethunder.mp3?v=d3609110", "a/s_eimpact.mp3?v=5f1ad3db", "a/s_knultvid.mp3?v=ed34cdfc"];
+var ASSETS=["a/knight.webp?v=18de0519", "a/fairy.webp?v=875183b4", "a/papa.webp?v=217845ce", "a/papault.webp?v=55d7fba8", "a/mom.webp?v=3f4a6d68", "a/momult.webp?v=a7ee77aa", "a/uncle.webp?v=5386f82c", "a/ice.webp?v=954f2492", "a/iceult.webp?v=60be8c76", "a/beast.webp?v=4cdb56c0", "a/bg_ice.webp?v=81e575b5", "a/bg_bamboo.webp?v=e0f9b406", "a/bg_rose.webp?v=5a61c745", "a/bg_temple.webp?v=f5b8293d", "a/bg_sky.webp?v=4afb77c2", "a/bg_arena.webp?v=0e22dffd", "a/sel_poster.jpg?v=ab606b76", "a/sel_full.webp?v=b15ac0ca", "a/v1.mp3?v=30f78591", "a/v2.mp3?v=c5c965a2", "a/v3.mp3?v=cf68a0b6", "a/vu.mp3?v=d05c33f2", "a/k1.mp3?v=1b6364c6", "a/k2.mp3?v=3eafe2b5", "a/k3.mp3?v=98ef01ac", "a/ku.mp3?v=edb01913", "a/p1.mp3?v=e16bd158", "a/p2.mp3?v=544e2ffd", "a/p3.mp3?v=bac0293e", "a/pu.mp3?v=4a2c0f2c", "a/m1.mp3?v=5ab333b3", "a/m3.mp3?v=2c43bf15", "a/mu.mp3?v=a1e104c1", "a/u1.mp3?v=bc4e3f22", "a/u2.mp3?v=20c0ae7f", "a/u3.mp3?v=312837a4", "a/uu.mp3?v=37a745ab", "a/pa_fly.webp?v=3bb5a5ae", "a/pa_hurt.webp?v=93bebb77", "a/pa_walk.webp?v=dd2f0afa", "a/pa_fan.webp?v=c04fc6b1", "a/pa_dance.webp?v=3b4cc1f7", "a/pa_jump.webp?v=15fae733", "a/pa_atk.webp?v=e297b1ff", "a/kn_win.webp?v=f4f7aebf", "a/kn_blanket.webp?v=0c44d772", "a/kn_cres.webp?v=bf88b903", "a/kn_hurt.webp?v=81de04c5", "a/kn_walk.webp?v=017a03f5", "a/kn_ult.webp?v=d3b0c388", "a/kn_idle.webp?v=58560ced", "a/kn_spin.webp?v=367e6144", "a/kn_jump.webp?v=d8b76c38", "a/kn_atk.webp?v=d53bd228", "a/un_dodge.webp?v=4cfadca1", "a/un_willow.webp?v=b99820b2", "a/un_win.webp?v=b598acc7", "a/un_hurt.webp?v=e2019d44", "a/un_walk.webp?v=b21186e4", "a/un_idle.webp?v=9478638e", "a/un_kick.webp?v=1fe935fe", "a/un_grab.webp?v=9175575e", "a/un_jump.webp?v=0e516ea7", "a/un_atk.webp?v=bacc6974", "a/fa_shot.webp?v=f4862d15", "a/fa_win.webp?v=718762b9", "a/fa_tornfx.webp?v=33b0ee55", "a/fa_hurt.webp?v=f625ca11", "a/fa_walk.webp?v=01105108", "a/fa_ult.webp?v=8151d5ff", "a/fa_idle.webp?v=a181035a", "a/fa_tornado.webp?v=b7e91daf", "a/fa_jump.webp?v=7d3b0748", "a/fa_heal.webp?v=5dfb8bad", "a/fa_atk.webp?v=5e6a1e05", "a/ic_win2.webp?v=02f02966", "a/ic_skate.webp?v=8b2554be", "a/ic_shot.webp?v=2d6979c4", "a/ic_win.webp?v=a76ebab9", "a/ic_fly.webp?v=0e4b8af8", "a/ic_snow.webp?v=2239f219", "a/ic_hurt.webp?v=90e026f6", "a/ic_walk.webp?v=a1725f82", "a/ic_ult.webp?v=192f0b99", "a/ic_storm.webp?v=79f6eb9c", "a/ic_summon.webp?v=74380556", "a/ic_jump.webp?v=57e3d794", "a/be_tri.webp?v=0a007b8e", "a/be_wolf.webp?v=d78ab6fe", "a/be_win.webp?v=4438b7c4", "a/be_hurt.webp?v=dd59e79f", "a/be_walk.webp?v=c2514607", "a/be_ult.webp?v=7492526e", "a/be_topfx.webp?v=7a5ec0a1", "a/be_lion.webp?v=8eb66b23", "a/be_idle.webp?v=eae08a20", "a/be_jump.webp?v=c236328d", "a/be_lionfx.webp?v=43abb0db", "a/be_atk.webp?v=76880205", "a/s_ewolf.mp3?v=1a2e2c3c", "a/s_slice1.mp3?v=15c51c3a", "a/s_slice2.mp3?v=d094b548", "a/s_efire.mp3?v=96f59ea8", "a/s_whoosh5.mp3?v=73f88fae", "a/s_mid.mp3?v=76c46374", "a/s_light2.mp3?v=8fc5d1aa", "a/s_ubeast.mp3?v=40aec050", "a/s_tiger.mp3?v=ca0f2960", "a/s_ucombo.mp3?v=44b3bfe7", "a/s_uice.mp3?v=76c814f4", "a/s_emagic3.mp3?v=3839c049", "a/s_whoosh6.mp3?v=0ef137c1", "a/s_ewind.mp3?v=14c53e83", "a/s_ufairy.mp3?v=b76b5370", "a/s_eice.mp3?v=4502f59e", "a/s_whoosh2.mp3?v=37ecedfb", "a/s_heavy.mp3?v=fa95f64f", "a/s_emagic2.mp3?v=8223aa19", "a/s_fight.mp3?v=fd2b26fb", "a/s_efire5.mp3?v=789abe3b", "a/s_round2.mp3?v=b68abfb7", "a/s_slice3.mp3?v=40d1e5ed", "a/s_slice4.mp3?v=dc2ade34", "a/s_upapa.mp3?v=c6bc3646", "a/s_grab.mp3?v=66dce83a", "a/s_whoosh3.mp3?v=94208711", "a/s_light1.mp3?v=5efc24d0", "a/s_whoosh4.mp3?v=9c59d361", "a/s_umom.mp3?v=57632af4", "a/s_whoosh1.mp3?v=491c9a70", "a/s_ko.mp3?v=e628653c", "a/s_efire3.mp3?v=864af630", "a/s_emagic.mp3?v=8a4d20d0", "a/s_round3.mp3?v=479b8985", "a/s_crash.mp3?v=1ce0e9f9", "a/s_ethunder.mp3?v=d3609110", "a/s_eimpact.mp3?v=5f1ad3db", "a/s_uuncle.mp3?v=306ada6f", "a/s_knultvid.mp3?v=ed34cdfc"];
 function offlinePack(){try{if(!('serviceWorker' in navigator)||location.protocol!=='https:'||/claude|localhost|127\.0\.0\.1/.test(location.hostname))return;}catch(e){return;}
   navigator.serviceWorker.register('sw.js').then(()=>navigator.serviceWorker.ready).then(reg=>{const badge=document.getElementById('offBadge');let i=0,ok=0;const n=ASSETS.length;
     badge.hidden=false;badge.textContent='下載離線包 0%';
