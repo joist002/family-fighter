@@ -815,7 +815,7 @@ const ACTS={
         p.act={type:'papaRush',t:0,dur:99,lock:true,slow:0,fired:true,phase:'run',n:0,ct:0};}});sfx('shoot');}},
   papaRush:{dur:99,at:0,slow:0,lock:true,fire(){},tick(p,dt){const a=p.act,o=opp(p),dx=o.x-p.x,dir=dx>=0?1:-1;p.face=dir;
       if(a.phase==='run'){p.vx=dir*1250;if(Math.random()<.6)G.parts.push({type:'dot',x:p.x-dir*50,y:GY-rnd(5,50),vx:-dir*200,vy:-60,life:.3,max:.3,c:'#ffd2cb',s:10,g:0});
-        if(Math.abs(dx)<110){a.phase='combo';a.ct=0;p.vx=0;}else if(a.t>1.6){p.act=null;o.charm=0;}}
+        if(Math.abs(dx)<110&&Math.abs(o.y-p.y)<160){a.phase='combo';a.ct=0;p.vx=0;}else if(a.t>1.6){p.act=null;o.charm=0;}}
       else{p.vx=0;a.ct+=dt;if(a.ct>=.17){a.ct=0;a.n++;const last=a.n>=6;o.inv=0;
         hit(o,p,last?9:3,dir*(last?360:30),last?-1250:0,last?t=>{t.down=.7;}:null,last?2.2:1);G.parts.push({type:'slash',x:p.x+dir*90,y:p.y-(last?170:110+(a.n%3)*45),f:dir,life:.18,max:.18,c:'#ff5a4e',v:a.n%2?1:-1,rot:last?-.9:rnd(-.6,.6),sc:last?1.5:1});sfx('swing');
         if(last){o.charm=0;G.shake=.4;pop(o.x,o.y-320,'玉樹臨風！','#ffd25a');p.act=null;}}}}},
@@ -1134,7 +1134,7 @@ function step(dt){
     if(Math.abs(o.x-m.x)<60&&o.y>GY-140&&!o.ko&&o.inv<=0){hit(o,m.o,4,m.dir*120,-60);freeze(o,m.o);burst(m.x,GY-60,'#e2f6ff',20,'flake');return false;}
     if(m.life<=0){burst(m.x,GY-50,'#e2f6ff',10,'flake');return false;}return m.x>-60&&m.x<VW+60;});
   G.storms=G.storms.filter(st=>{st.t+=sdt;st.life-=sdt;st.x+=st.dir*240*sdt;st.hitT-=sdt;const o=opp(st.o);
-    if(st.t>.25&&st.life>.4&&st.hitT<=0&&Math.abs(o.x-st.x)<150&&!o.ko){st.hitT=.26;o.inv=0;hit(o,st.o,3.2,st.dir*160,-320,null,.4);}
+    if(st.t>.25&&st.life>.4&&st.hitT<=0&&Math.abs(o.x-st.x)<150&&o.y>GY-400&&!o.ko){st.hitT=.26;o.inv=0;hit(o,st.o,3.2,st.dir*160,-320,null,.4);}
     if(Math.random()<.7)G.parts.push({type:'flake',x:st.x+rnd(-150,150),y:GY-rnd(0,380),vx:st.dir*rnd(40,200),vy:rnd(-60,60),life:.7,max:.7,c:'#e2f6ff',s:rnd(5,10),g:0,rot:rnd(0,6),vr:rnd(-4,4)});
     return st.life>0&&st.x>-250&&st.x<VW+250;});
   // fairy ult rain
