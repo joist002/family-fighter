@@ -1865,7 +1865,13 @@ function showVS(){loadAnims(G.picks);pickStage();const v=document.getElementById
     <div class="nm n0">${esc(a.name)}</div><div class="nm n1">${esc(b.name)}</div><div class="big">VS</div><div class="flash"></div>`;
   showUI('vs');sfx('swing');setTimeout(()=>{sfx('boom');G.shake=.3;},480);
   clearTimeout(vsTimer);vsTimer=setTimeout(goFight,2300);v.onclick=goFight;}
-function goFight(){clearTimeout(vsTimer);if(G.mode!=='vs')return;try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{});}catch(e){}buildPads();startMatch();}
+// don't start the fight until both fighters' action sheets are loaded (slow network would show still photos instead)
+function animsReady(){return G.picks.every(k=>!ANIM[k]||Object.values(ANIM[k].img).every(im=>im.complete&&im.naturalWidth));}
+function goFight(){clearTimeout(vsTimer);if(G.mode!=='vs')return;
+  if(!animsReady()&&!goFight.forced){const v=document.getElementById('vs');let w=v.querySelector('.wait');if(!w){w=document.createElement('div');w.className='wait';w.style.cssText='position:absolute;left:50%;bottom:4vh;transform:translateX(-50%);z-index:6;font:700 18px var(--f-display);color:#fff;padding:8px 18px;border-radius:999px;background:rgba(6,3,22,.7)';v.appendChild(w);goFight.t0=performance.now();}
+    const tot=G.picks.reduce((n,k)=>n+(ANIM[k]?Object.keys(ANIM[k].img).length:0),0),ok=G.picks.reduce((n,k)=>n+(ANIM[k]?Object.values(ANIM[k].img).filter(im=>im.complete&&im.naturalWidth).length:0),0);
+    w.textContent='載入角色動作中… '+Math.round(ok/Math.max(1,tot)*100)+'%';if(performance.now()-goFight.t0>20000)goFight.forced=true;vsTimer=setTimeout(goFight,150);return;}
+  goFight.forced=false;goFight.t0=0;try{navigator.wakeLock&&navigator.wakeLock.request('screen').catch(()=>{});}catch(e){}buildPads();startMatch();}
 var SCREENS=['title','select','vs','end'];
 function showUI(mode){const play=mode==='play';SCREENS.forEach(k=>document.getElementById(k).hidden=k!==mode);
   document.getElementById('pause').hidden=true;padEls.forEach((e,n)=>e.hidden=!play||(n===1&&G.cpu>0));document.getElementById('pauseBtn').hidden=!play;G.paused=false;
