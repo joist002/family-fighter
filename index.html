@@ -436,7 +436,7 @@ try{['900 40px Cinzel','900 40px "Noto Serif TC"','700 20px "Noto Sans TC"'].for
 function shade(c,k){const n=parseInt(c.slice(1),16);return`rgb(${(n>>16&255)*k|0},${(n>>8&255)*k|0},${(n&255)*k|0})`;}
 
 var CHARS={
-  tt:{key:'tt',ultSnd:'ufairy',name:'天天-擊劍者',tag:'速度・連段',color:'#8fb4ff',light:'#eef4ff',h:262,speed:390,jump:1010,grav:2300,dbl:false,natural:1,headY:.88,headX:0,
+  tt:{key:'tt',ultFreeze:.45,ultSnd:'ufairy',name:'天天-擊劍者',tag:'速度・連段',color:'#8fb4ff',light:'#eef4ff',h:262,speed:390,jump:1010,grav:2300,dbl:false,natural:1,headY:.88,headX:0,
     atkCd:.22,skills:[['疾速突刺',4],['後撤反擊',5],['空翻背刺',6]],ult:'疾風亂舞',btn:['突刺','反擊','背刺'],
     desc:['超快突刺，會追著對手（空中也追）','後撤一步再往前上挑，把對手挑飛','空翻越過對手，落地背刺'],udesc:'劍立臉前，衝過去上下左右亂刺'},
   blue:{key:'blue',ultSnd:'blUltVid',ultVid:'a/bl_ultvid.mp4?v=c329a481',name:'炫藍閃電',tag:'機甲・雷電鐵拳',color:'#2f8fff',light:'#bfe4ff',h:262,speed:310,jump:980,grav:2300,dbl:false,natural:1,headY:.85,headX:0,ultFreeze:1.6,
@@ -744,8 +744,8 @@ const ACTS={
   ttUlt:{dur:99,at:0,slow:0,lock:true,fire(p){Object.assign(p.act,{ph:'pose',tgt:null,n:0,nx:0,sp:0,cuts:0});sfx('heal');},
     tick(p,dt){const a=p.act,o=opp(p),t=a.t;p.inv=Math.max(p.inv,.2);
       if(a.ph==='pose'){p.vx=0;if(Math.random()<dt*20)G.parts.push({type:'glint',x:p.x+p.face*30+rnd(-30,30),y:p.y-rnd(150,260)*CS,vx:0,vy:-40,g:0,life:.4,max:.4,s:rnd(6,12),rot:0,vr:3,c:'#eef4ff'});
-        if(t>=.6){a.ph='dash';a.ds=t;sfx('wind');}return;}
-      if(a.ph==='dash'){p.face=o.x>=p.x?1:-1;p.vx=p.face*1600;if(Math.random()<.8)G.parts.push({type:'ghost',ch:'tt',x:p.x,y:p.y,f:p.face,life:.22,max:.22,pose:POSE.tt(p)});
+        if(t>=.1){a.ph='dash';a.ds=t;sfx('wind');}return;}
+      if(a.ph==='dash'){p.face=o.x>=p.x?1:-1;p.vx=p.face*2800;if(Math.random()<.8)G.parts.push({type:'ghost',ch:'tt',x:p.x,y:p.y,f:p.face,life:.22,max:.22,pose:POSE.tt(p)});
         if(Math.abs(o.x-p.x)<150&&Math.abs(o.y-p.y)<240&&!o.ko&&o.grabbed<0&&!(o.act&&o.act.type==='uncleCharge')){a.ph='rush';a.rs=t;a.tgt=o;o.act=null;o.grabbed=p.idx;o.fly=0;o.charm=0;o.smile=0;o.frozen=0;o.tumble=true;pop(p.x,p.y-340,'疾風亂舞！','#eef4ff');}
         else if(t-a.ds>.55){a.ph='miss';a.dur=t+.35;p.vx=0;}return;}
       if(a.ph==='miss'){p.vx*=.8;return;}
