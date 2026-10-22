@@ -745,7 +745,7 @@ const ACTS={
       o.x=p.x+f*80;o.y=GY;o.onGround=true;spinSet(o,f*1.45,70);o.stun=Math.max(o.stun,.2);
       if(a.ph==='floor'){if(s>=.6){a.ph='lock';a.lt=s;a.nx=s;pop(o.x,o.y-160,'十字固！','#d99a4e');}return;}
       if(a.ph==='lock'){if(s>=a.nx&&s-a.lt<1.4){a.nx=s+.3;hit(o,p,.9,0,0,null,.3);o.grabbed=p.idx;G.parts.push({type:'impact',x:o.x+f*30,y:GY-50,life:.15,max:.15,c:'#ffe2b8',r:55,rot:rnd(0,6)});play('light'+(1+((a.nx*7)|0)%2),.4,.9);}
-        if(s-a.lt>=1.4){release(p,a);hit(o,p,3,f*260,-380,null,1.1);a.ph='up';a.ut=s;}return;}
+        if(s-a.lt>=1.4){release(p,a);o.y=GY;o.vy=0;o.onGround=true;hit(o,p,3,f*110,0,null,1.1);o.stun=Math.max(o.stun,.35);a.ph='up';a.ut=s;}return;}
       if(a.ph==='up'&&s-a.ut>.35)p.act=null;},
     end(p,a){release(p,a);}},
   // 過肩摔: short dash; on contact, judo shoulder throw over to the other side
@@ -756,7 +756,7 @@ const ACTS={
       p.vx=0;if(a.ph==='miss'){if(t-a.mt>.3)p.act=null;return;}
       const s=t-a.gt;
       if(a.ph==='throw'){const k=Math.min(1,s/.6),an=Math.PI*k;o.inv=0;o.x=p.x+f*Math.cos(an)*105;o.y=GY-40-Math.sin(an)*230;spinSet(o,-f*Math.PI*k*.95,0);
-        if(k>=1){a.ph='land';a.lt=s;o.x=p.x-f*115;o.y=GY;release(p,a);o.inv=0;hit(o,p,9,-f*220,-380,u=>{pop(u.x,u.y-260,'過肩摔！','#ffe066');},1.6);G.shake=.7;G.flash=.15;G.flashCol='#fff';
+        if(k>=1){a.ph='land';a.lt=s;o.x=p.x-f*115;o.y=GY;release(p,a);p.face=-f;o.face=f;o.inv=0;hit(o,p,9,-f*220,-380,u=>{pop(u.x,u.y-260,'過肩摔！','#ffe066');},1.6);G.shake=.7;G.flash=.15;G.flashCol='#fff';
           burst(o.x,GY-6,'#cfc6ee',22,'dust');G.parts.push({type:'ring',x:o.x,y:GY-8,life:.45,max:.45,c:'#ffe066',r:280});play('heavy',1,.75);sfx('boom');}return;}
       if(a.ph==='land'&&s-a.lt>.35)p.act=null;},
     end(p,a){release(p,a);}},
