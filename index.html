@@ -600,7 +600,7 @@ function startRound(){clearFists();slashEnd();rubEnd();starEnd();holdEnd();spinE
 function startMatch(){loadAnims(G.picks);G.wins=[0,0];G.round=1;startRound();showUI('play');}
 
 /* ---------- combat ---------- */
-function hurt(p){return{x1:p.x-40,x2:p.x+40,y1:p.y-(p.bunny>0?150:220)*CS,y2:p.y}}
+function hurt(p){return{x1:p.x-50,x2:p.x+50,y1:p.y-(p.bunny>0?150:230)*CS,y2:p.y}}
 function hit(t,src,dmg,kbx,kby,extra,stopMul=1){
   if(t.ko||t.inv>0||G.mode!=='fight')return false;
   if(t.act&&t.act.type==='uncleCharge'){t.act.absorb+=dmg*(t.helper?.5:1);t.flash=.1;G.hitstop=Math.max(G.hitstop,.05);sfx('block');
@@ -610,7 +610,9 @@ function hit(t,src,dmg,kbx,kby,extra,stopMul=1){
   if(t.act&&t.act.type==='papa1'){t.act=null;pop(t.x,t.y-300,'集氣被打斷！','#ffd2cb');}
   if(t.act&&t.act.type==='fairy3'){const h=t.act.healed;t.act=null;pop(t.x,t.y-320,'治癒被打斷！','#b9ffcf');}
   if(t.act&&t.act.type==='momChant'){t.act=null;pop(t.x,t.y-320,'念咒被打斷！','#fff0c4');}
-  t.hp=Math.max(0,t.hp-dmg);t.stun=.22;t.flash=.14;t.inv=.09;t.vx=kbx*(t.helper?.7:1);if(kby){t.vy=kby;t.onGround=false;if(kby<-300)t.tumble=true;}
+  // getting hit interrupts whatever the target was doing (except ults, grabs and super-armour moves)
+  if(t.act&&!ARMOR.includes(t.act.type)){const a0=t.act,def=ACTS[a0.type];t.act=null;if(def&&def.end&&CLEANUP.includes(a0.type))try{def.end(t,a0);}catch(e){}t.interrupted=G.time;}
+  t.hp=Math.max(0,t.hp-dmg);t.stun=Math.max(t.stun,Math.min(.45,.2+dmg*.022));t.flash=.14;t.inv=.09;t.vx=kbx*(t.helper?.7:1);if(kby){t.vy=kby;t.onGround=false;if(kby<-300)t.tumble=true;}
   // impact feel: freeze frame scaled by damage, number popup, combo counter
   G.hitstop=Math.max(G.hitstop,Math.min(.16,(.035+dmg*.007)*stopMul));
   const dir=kbx?Math.sign(kbx):(t.x>=src.x?1:-1),hx=t.x-dir*22,hy=t.y-(t.bunny>0?90:150);
@@ -1481,6 +1483,8 @@ function updPlayer(p,dt,live){
 }
 // KOF-style body blocking: fighters can't walk through each other; walking into someone shoves them slowly.
 // Jumping over is still allowed (big height difference), and grabs / throws / KO bodies are left alone.
+var ARMOR=['blueUlt','ttUlt','iceRub','fairyStar','knightStorm','beastSpin','ultLeap','knightLand','knightDrop','iceCast','beastUlt','uncleCharge','uncleKick','uncleHold','uncleThrow','momRoar','papaCast','papaRush','fairyUlt'];
+var CLEANUP=['iceDash','uncle1','knight3'];
 var ULT_ACTS=['blueUlt','ttUlt','iceRub','fairyStar','knightStorm','beastSpin','ultLeap','knightLand'];
 var NOPUSH=['knightStorm','beastSpin','iceRub','fairyStar','tt1','tt3','ttStab','ttUlt','blueUlt','uncle1','uncleThrow','uncleHold','papa3','papaRush'];
 function pushApart(){const [a,b]=G.players;if(!a||!b||a.ko||b.ko||a.grabbed>=0||b.grabbed>=0)return;
