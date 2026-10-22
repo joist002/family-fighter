@@ -780,14 +780,16 @@ const ACTS={
     tick(p,dt){const a=p.act,o=opp(p),f=p.face,t=a.t;if(t>5){release(p,a);p.act=null;return;}
       if(a.ph==='reach'){p.vx=t<.25?f*380:0;if(t>.1&&t<.34&&canGrab(p,o,170)){a.ph='slam';a.gt=t;a.tgt=o;grabOn(p,o);play('grab',1);}else if(t>.5){a.ph='miss';a.mt=t;}return;}
       if(a.ph==='miss'){p.vx=0;if(t-a.mt>.25)p.act=null;return;}
-      const s=t-a.gt;p.vx=0;o.inv=0;
+      const s=t-a.gt;p.vx=0;
+      if(a.ph==='up'){if(s-a.ut>.35)p.act=null;return;}
+      o.inv=0;
       if(a.ph==='slam'){const k=Math.min(1,s/.32);o.x=p.x+f*(100-k*10);o.y=GY-Math.sin(k*Math.PI)*90;spinSet(o,f*1.45*k,k*70);
         if(s>=.32){a.ph='floor';hit(o,p,4,0,0,null,1.2);o.grabbed=p.idx;G.shake=.45;burst(o.x,GY-6,'#cfc6ee',16,'dust');G.parts.push({type:'ring',x:o.x,y:GY-8,life:.4,max:.4,c:'#ffe2b8',r:220});play('heavy',.9,.8);}return;}
       o.x=p.x+f*80;o.y=GY;o.onGround=true;spinSet(o,f*1.45,70);o.stun=Math.max(o.stun,.2);
       if(a.ph==='floor'){if(s>=.6){a.ph='lock';a.lt=s;a.nx=s;pop(o.x,o.y-160,'十字固！','#d99a4e');}return;}
       if(a.ph==='lock'){if(s>=a.nx&&s-a.lt<1.4){a.nx=s+.3;hit(o,p,.9,0,0,null,.3);o.grabbed=p.idx;G.parts.push({type:'impact',x:o.x+f*30,y:GY-50,life:.15,max:.15,c:'#ffe2b8',r:55,rot:rnd(0,6)});play('light'+(1+((a.nx*7)|0)%2),.4,.9);}
         if(s-a.lt>=1.4){release(p,a);o.y=GY;o.vy=0;o.onGround=true;hit(o,p,3,f*110,0,null,1.1);o.stun=Math.max(o.stun,.35);a.ph='up';a.ut=s;}return;}
-      if(a.ph==='up'&&s-a.ut>.35)p.act=null;},
+      },
     end(p,a){release(p,a);}},
   // 過肩摔: short dash; on contact, judo shoulder throw over to the other side
   saboThrow:{dur:99,at:0,slow:0,lock:true,fire(p){p.act.ph='dash';sfx('wind');},
@@ -818,7 +820,7 @@ const ACTS={
       else{if(fi<4){o.x=p.x+f*115;o.y=Math.min(GY,o.y+500*dt);spinSet(o,f*1.2*Math.sin(s*9),0);if(newF)smack(1.2);}
         else if(fi===4){o.x=p.x+f*80;o.y=GY-40;}
         else{o.x=p.x+f*40;o.y=GY-60-(s-3.8)*500;spinSet(o,f*(s-3.8)*9,0);}
-        if(s>=4.6){release(p,a);hit(o,p,6,f*240,-1350,u=>pop(u.x,u.y-280,'拋飛！','#ffe066'),1.6);G.shake=.6;G.flash=.25;G.flashCol='#fff';sfx('boom');play('heavy',1,.8);a.ph='pose';a.pt=s;}}
+        if(s>=4.6){release(p,a);hit(o,p,6,f*300,-950,u=>pop(u.x,u.y-280,'拋飛！','#ffe066'),1.6);G.shake=.6;G.flash=.25;G.flashCol='#fff';sfx('boom');play('heavy',1,.8);a.ph='pose';a.pt=s;}}
     },
     end(p,a){release(p,a);}},
   // 鍋鏟: three-step spatula combo; holding the button turns it into stir-frying (charge) and tossing dishes
@@ -1677,7 +1679,7 @@ function grandmaPose(p){const a=p.act,an=p.anim;
 function canGrab(p,o,r){return Math.abs(o.x-p.x)<r&&Math.abs(o.y-p.y)<170&&!o.ko&&o.grabbed<0&&o.inv<=0&&!(o.act&&(o.act.type==='uncleCharge'||o.act.type==='gmDome'))&&G.mode==='fight';}
 function grabOn(p,o){o.act=null;o.grabbed=p.idx;o.fly=0;o.charm=0;o.smile=0;o.frozen=0;o.tumble=false;o.vx=0;o.vy=0;o.face=p.x>=o.x?1:-1;}
 function release(p,a){const o=a&&a.tgt;if(o&&o.grabbed===p.idx){o.grabbed=-1;o.spinUntil=0;}}
-function spinSet(o,r,lift){o.spinR=r;o.spinLift=lift||0;o.spinUntil=G.time+.06;}
+function spinSet(o,r,lift){o.spinR=r;o.spinLift=lift||0;o.spinUntil=G.time+.15;}
 function saboPose(p){const a=p.act,an=p.anim;
   if(p.ko){if(!p.onGround)return['hurt',clampI(4+(G.time*8)%4,4,7)];return['hurt',[8,9,10,11][clampI(an.koG/.18,0,3)]];}
   if(isWinner(p)){const t=G.phaseT-(G.koType==='ko'?1.2:.3);return['win',t<.8?clampI(t/.1,0,7):[4,5,6,7][(t*4|0)%4]];}
