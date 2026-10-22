@@ -645,7 +645,7 @@ var IN=[0,1].map(()=>({my:0,ky:0,mx:0,kx:0,jump:false,press:[false,false,false,f
 
 function makePlayer(i){const d=CHARS[G.picks[i]];return{idx:i,d,x:i?VW*.74:VW*.26,y:GY,vx:0,vy:0,face:i?-1:1,hp:100,hpShow:100,meter:0,cd:[0,0,0,0],
   act:null,stun:0,inv:0,shield:0,bunny:0,frizz:0,charm:0,smile:0,flash:0,helper:G.helper[i],onGround:true,jumps:0,ko:false,koT:0,heal:0,
-  ccImm:0,ultT:0,tumble:false,grabbed:-1,frozen:0,fly:0,combo:0,comboT:-9,comboShow:0,anim:{walk:0,land:0,row:0,rowT:-9,koG:0}};}
+  ccImm:0,ultT:0,wokHead:0,tumble:false,grabbed:-1,frozen:0,fly:0,combo:0,comboT:-9,comboShow:0,anim:{walk:0,land:0,row:0,rowT:-9,koG:0}};}
 var opp=p=>G.players[1-p.idx];
 
 function startRound(){rideEnd();clearFists();slashEnd();rubEnd();starEnd();holdEnd();spinEnd();G.players=[makePlayer(0),makePlayer(1)];G.proj=[];G.boxes=[];G.waves=[];G.rains=[];G.cars=[];G.minions=[];G.storms=[];G.fx=[];G.texts=[];G.nums=[];G.parts=[];G.hitstop=0;G.timer=60;G.mode='intro';G.phaseT=0;G.banner='';G.koWinner=-1;G.slow=0;G.cutin=null;G.freeze=0;
@@ -736,11 +736,27 @@ const ACTS={
   // 鐵鍋金鐘罩: the wok grows and covers grandma; hits are blocked and half the damage bounces back
   gmDome:{dur:2.75,at:.3,slow:0,lock:true,fire(p){play('heavy',.6,.7);G.shake=Math.max(G.shake,.2);burst(p.x,GY-8,'#cfc6ee',14,'dust');},tick(p){p.vx=0;}},
   // 大火快炒: throw the blazing wok, then dash after it and slash with the spatula
-  gmToss:{dur:1.15,at:.3,slow:0,lock:true,fire(p){const f=p.face;shoot(p,{kind:'wokball',x:p.x+f*120,y:p.y-150,vx:f*1150,vy:0,r:40,dmg:5,kbx:f*60,kby:0,life:1.1,spin:f*14,pw:3});play('efire',.8,.9);sfx('shoot');},
-    tick(p){const a=p.act,f=p.face,o=opp(p);if(a.t<.3){p.vx=0;if(Math.random()<.5)G.parts.push({type:'spark',x:p.x+f*rnd(60,140),y:p.y-rnd(100,180),vx:rnd(-60,60),vy:rnd(-220,-60),life:.3,max:.3,c:'#ff7a1a',s:12,g:0});return;}
-      if(a.t>=.36&&a.t<.74){p.vx=f*1250;if(Math.random()<.6)G.parts.push({type:'ghost',ch:'grandma',x:p.x,y:p.y,f,life:.2,max:.2,pose:POSE.grandma(p)});}else p.vx*=.8;
-      if(!a.slash&&a.t>=.68){a.slash=1;box(p,{x1:p.x-f*20,x2:p.x+f*210,y1:p.y-260,y2:p.y,dmg:6,kbx:f*520,kby:-420,life:.12,extra:t=>pop(t.x,t.y-280,'燙！','#ff8a2a')});sfx('swing');play('efire3',.6,1.3);
-        G.parts.push({type:'impact',x:p.x+f*150,y:p.y-130,life:.25,max:.25,c:'#ff7a1a',r:120,rot:0});}}},
+  gmToss:{dur:99,at:.3,slow:0,lock:true,fire(p){const f=p.face,me=p.act;shoot(p,{kind:'wokball',x:p.x+f*120,y:p.y-170,vx:f*1150,vy:-60,r:40,dmg:4,kbx:f*40,kby:0,life:1.1,spin:f*14,pw:3,
+        extra:u=>{if(p.act===me&&!u.ko){me.hitW=1;me.tgt=u;u.act=null;u.wokHead=1.4;pop(u.x,u.y-280,'套住！','#ff8a3a');play('heavy',.8,.7);}}});play('efire',.8,.9);sfx('shoot');},
+    tick(p,dt){const a=p.act,f=p.face,o=opp(p),t=a.t;if(t>6){p.act=null;return;}
+      if(t<.3){p.vx=0;if(Math.random()<.5)G.parts.push({type:'spark',x:p.x+f*rnd(60,140),y:p.y-rnd(100,180),vx:rnd(-60,60),vy:rnd(-220,-60),life:.3,max:.3,c:'#ff7a1a',s:12,g:0});return;}
+      const ghost=()=>{if(Math.random()<.6)G.parts.push({type:'ghost',ch:'grandma',x:p.x,y:p.y,f:p.face,life:.2,max:.2,pose:POSE.grandma(p)});};
+      // wok landed on the head: run in and stir-fry them
+      if(a.hitW&&!a.ph){a.ph='run';a.rs=t;}
+      if(a.ph==='run'){const u=a.tgt;p.face=u.x>=p.x?1:-1;p.vx=p.face*1500;ghost();u.wokHead=Math.max(u.wokHead,.6);u.stun=Math.max(u.stun,.2);
+        if(Math.abs(u.x-p.x)<150||t-a.rs>.6){a.ph='fry';a.ft=t;a.nx=t;p.vx=0;u.grabbed=p.idx;u.act=null;u.tumble=false;}return;}
+      if(a.ph==='fry'){const u=a.tgt;p.vx=0;if(u.ko){a.ph='done';a.de=t+.3;return;}u.grabbed=p.idx;u.wokHead=Math.max(u.wokHead,.4);u.x=p.x+p.face*130;u.y=GY;u.vx=0;u.vy=0;u.onGround=true;u.tumble=false;u.stun=Math.max(u.stun,.15);
+        if(t>=a.nx&&t-a.ft<1.1){a.nx=t+.11;u.inv=0;hit(u,p,.7,0,0,null,.25);u.grabbed=p.idx;foodBits(u.x,u.y-200,(a.nx*10|0)%4,4);
+          G.parts.push({type:'impact',x:u.x+rnd(-30,30),y:u.y-rnd(150,230),life:.12,max:.12,c:'#ff8a2a',r:rnd(40,70),rot:rnd(0,6)});if(((a.nx*9)|0)%2)play('light'+(1+((a.nx*7)|0)%2),.35,1.2);}
+        if(Math.random()<.8)G.parts.push({type:'spark',x:u.x+rnd(-60,60),y:u.y-rnd(160,260),vx:rnd(-120,120),vy:rnd(-300,-80),life:.35,max:.35,c:Math.random()<.5?'#ffb347':'#ff5a1a',s:rnd(10,16),g:0});
+        if(t-a.ft>=1.1){u.grabbed=-1;u.inv=0;u.wokHead=0;wokOff(u);hit(u,p,4,p.face*560,-620,w=>pop(w.x,w.y-280,'燙！','#ff8a2a'),1.3);play('efire3',.8,1);G.shake=.4;a.ph='done';a.de=t+.35;}return;}
+      if(a.ph==='done'){p.vx=0;if(t>=a.de)p.act=null;return;}
+      // missed: chase the wok and swing anyway
+      if(t>=.36&&t<.74){p.vx=f*1250;ghost();}else p.vx*=.8;
+      if(!a.slash&&t>=.68){a.slash=1;box(p,{x1:p.x-f*20,x2:p.x+f*210,y1:p.y-260,y2:p.y,dmg:6,kbx:f*520,kby:-420,life:.12,extra:u=>pop(u.x,u.y-280,'燙！','#ff8a2a')});sfx('swing');play('efire3',.6,1.3);
+        G.parts.push({type:'impact',x:p.x+f*150,y:p.y-130,life:.25,max:.25,c:'#ff7a1a',r:120,rot:0});}
+      if(t>1.15)p.act=null;},
+    end(p,a){const u=a&&a.tgt;if(u){if(u.grabbed===p.idx)u.grabbed=-1;if(u.wokHead>0){u.wokHead=0;wokOff(u);}}}},
   // 鐵鍋飛車: hop into the wok and rocket into the enemy; on impact a swipe toward the enemy rams again (max 3)
   gmRide:{dur:99,at:0,slow:0,lock:true,fire(p){const a=p.act,o=opp(p);p.face=o.x>=p.x?1:-1;a.ph='mount';a.n=0;sfx('jump');},
     tick(p,dt){const a=p.act,o=opp(p),t=a.t;if(t>7){rideEnd();p.act=null;return;}
@@ -1522,7 +1538,13 @@ function rideStart(p){RD.on=true;RD.ok=false;RD.p=p;RD.st=null;let L=document.ge
     const up=()=>{RD.st=null;};L.addEventListener('pointerup',up);L.addEventListener('pointercancel',up);}
   L.style.left=p.idx===0?'0':'50%';L.hidden=!!(G.cpu&&p.idx===1);}
 function rideEnd(){RD.on=false;RD.st=null;const L=document.getElementById('rideLayer');if(L)L.hidden=true;}
-function drawGmFx(p){const a=p.act;if(!a)return;const T=G.time,f=p.face;
+function wokOff(u){const hy=hurt(u).y1;G.parts.push({type:'impact',x:u.x,y:hy+20,life:.2,max:.2,c:'#ffb347',r:90,rot:0});burst(u.x,hy+20,'#ffd25a',10,'spark');play('heavy',.5,1.4);}
+function drawWokHead(p){if(!(p.wokHead>0)||p.ko)return;const hy=p.y-p.d.h*(p.d.headY||.85)-4,w=Math.sin(G.time*22)*.12,R=64;ctx.save();ctx.translate(p.x,hy);ctx.rotate(w);
+  ctx.fillStyle='#1d1a1a';ctx.beginPath();ctx.ellipse(0,0,R,R*.85,0,Math.PI,0);ctx.closePath();ctx.fill();ctx.fillStyle='#2b2626';ctx.beginPath();ctx.ellipse(0,0,R+6,10,0,0,7);ctx.fill();
+  ctx.strokeStyle='#8a7a70';ctx.lineWidth=3;ctx.beginPath();ctx.ellipse(0,0,R+6,10,0,0,7);ctx.stroke();ctx.fillStyle='rgba(255,170,90,.35)';ctx.beginPath();ctx.ellipse(-R*.3,-R*.45,R*.35,R*.18,-.5,0,7);ctx.fill();
+  ctx.fillStyle='#7a4a20';ctx.save();ctx.rotate(.15);ctx.fillRect(R+2,-6,R*.7,12);ctx.restore();ctx.restore();
+  if(Math.random()<.3)G.parts.push({type:'spark',x:p.x+rnd(-50,50),y:hy-rnd(10,50),vx:rnd(-60,60),vy:rnd(-160,-40),life:.3,max:.3,c:'#ff8a2a',s:10,g:0});}
+function drawGmFx(p){drawWokHead(p);const a=p.act;if(!a)return;const T=G.time,f=p.face;
   if(a.type==='gmDome'&&a.t>.36&&a.t<2.35){glow(p.x,p.y-80,240,'#ff8a2a',.25+Math.sin(T*10)*.08);}
   if(a.type==='gmUlt'&&a.t>.8&&a.t<5.1){const cx=p.x+f*90;ctx.save();ctx.globalAlpha=.35+Math.sin(T*12)*.1;const g=ctx.createRadialGradient(cx,GY-4,10,cx,GY-4,230);g.addColorStop(0,'rgba(255,120,40,.9)');g.addColorStop(1,'rgba(255,60,20,0)');
     ctx.fillStyle=g;ctx.beginPath();ctx.ellipse(cx,GY-4,230,40,0,0,7);ctx.fill();ctx.restore();glow(cx,p.y-120,260,'#ff7a1a',.35);}
@@ -1543,7 +1565,7 @@ function grandmaPose(p){const a=p.act,an=p.anim;
     case'gm0':return['atk',an.row*4+clampI(t/a.dur*4,0,3)];
     case'gmCook':if(a.ph==='charge')return['cook',a.c<.15?1:a.c<.5?2:[2,3][(G.time*10|0)%2]];{const tt=t-a.ts;return['cook',tt<.12?4:tt<.3?5:tt<.45?6:7];}
     case'gmDome':return['dome',t<.12?0:t<.24?1:t<.36?2:t<.5?3:t<2.35?(t<1.4?4:5):t<2.55?6:7];
-    case'gmToss':return['toss',t<.14?0:t<.3?1:t<.38?2:t<.52?3:t<.66?4:t<.82?5:t<.98?6:7];
+    case'gmToss':if(a.ph==='run')return['toss',4];if(a.ph==='fry')return(G.time*9|0)%2?['toss',5]:['atk',[3,9][(G.time*4|0)%2]];if(a.ph==='done')return['toss',t-a.de>-.2?7:6];return['toss',t<.14?0:t<.3?1:t<.38?2:t<.52?3:t<.66?4:t<.82?5:t<.98?6:7];
     case'gmRide':if(a.ph==='mount')return['ride',t<.12?0:t<.24?1:2];if(a.ph==='rocket')return['ride',[3,4][(G.time*12|0)%2]];if(a.imp!=null&&t-a.imp<.15)return['ride',5];if(a.ph==='out')return['ride',7];return['ride',6];
     case'gmUlt':if(t<1)return['ult',clampI(t/.2,0,4)];if(t<5)return['cookloop',(t*8|0)%8];return['ult',clampI(5+(t-5)/.2,5,7)];}}
   if(!p.onGround)return['jump',p.vy<-500?2:p.vy<-100?3:p.vy<250?4:p.vy<600?5:6];
@@ -1557,7 +1579,7 @@ function splash(x,y){for(let i=0;i<14;i++){const an=rnd(-Math.PI*.95,-Math.PI*.0
 function burst(x,y,c,n,type){if(type==='dust'){for(let i=0;i<n;i++)G.parts.push({type,x:x+rnd(-40,40),y,vx:rnd(-160,160),vy:rnd(-90,-20),life:rnd(.35,.6),max:.6,c,s:rnd(10,18),g:0});return;}
   for(let i=0;i<n;i++){const a=rnd(0,Math.PI*2),s=rnd(120,480);G.parts.push({type,x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-120,life:rnd(.4,.8),max:.8,c,s:rnd(5,11),rot:rnd(0,6),vr:rnd(-8,8),g:600});}}
 // kids can't read yet: every former text pop becomes a manga-style symbol (impact frames by element, status marks)
-var MANGA=[['反彈','impact',1.2,'#ff8a3a'],['燙','fire',.9],['吸收','shield',1,'#3fe0a0'],['擋住','shield',1,'#9be8ff'],['被擋下','shield',1,'#ffffff'],['被打斷','broken',1],['不怕','immune',1],['凍住','frost',1],
+var MANGA=[['套住','impact',1.25,'#ff8a3a'],['反彈','impact',1.2,'#ff8a3a'],['燙','fire',.9],['吸收','shield',1,'#3fe0a0'],['擋住','shield',1,'#9be8ff'],['被擋下','shield',1,'#ffffff'],['被打斷','broken',1],['不怕','immune',1],['凍住','frost',1],
   ['完美雷擊','thunder',1.55,'#ffe066'],['萬雷天降','thunder',1.8],['百萬伏特','thunder',1.25],['扣殺','thunder',1.1],['無限爆裂','thunder',1.2],['爆裂','thunder',1.75,'#ffe066'],['電到炸毛','zap',1],
   ['冰封','ice',1.7],['冰晶撞擊','ice',1.25],['冰晶衝刺','ice',.95],['小雪人','ice',.8],['冰之飛行','ice',.85],
   ['心願成真','heart',1.4],['迷倒','love',1],['笑咪咪','smile',1],['變成小兔子','bunny',1],['噗噗','puff',.8],['流血','blood',1],
@@ -1573,13 +1595,13 @@ function pop(x,y,s,c){let m=null;for(const q of MANGA)if(s.indexOf(q[0])>=0){m=q
 /* ---------- update ---------- */
 function updPlayer(p,dt,live){
   const d=p.d,o=opp(p),inp=IN[p.idx];
-  ['stun','inv','shield','bunny','frizz','charm','smile','flash','heal','ccImm','comboShow','frozen','fly','floatT','ultT']
+  ['stun','inv','shield','bunny','frizz','charm','smile','flash','heal','ccImm','comboShow','frozen','fly','floatT','ultT','wokHead']
     .forEach(k=>{if(k==='frozen'&&p.frozen>0&&p.frozen-dt<=0)shatter(p);p[k]=Math.max(0,p[k]-dt);});
   for(let i=0;i<4;i++)p.cd[i]=Math.max(0,p.cd[i]-dt);
   if(p.act&&ULT_ACTS.includes(p.act.type))p.ultT=Math.max(p.ultT||0,1);
   if(live&&!p.ko&&!(p.ultT>0))p.meter=Math.min(100,p.meter+dt*3*(p.helper?1.5:1));
   p.hpShow+=(p.hp-p.hpShow)*Math.min(1,dt*3);
-  if(p.grabbed>=0){const g=G.players[p.grabbed];if(!g.act||(g.act.type!=='uncleThrow'&&g.act.type!=='uncleHold'&&g.act.type!=='blueUlt'&&g.act.type!=='ttUlt'&&g.act.type!=='iceRub'&&g.act.type!=='fairyStar'&&g.act.type!=='knightStorm'&&g.act.type!=='beastSpin'&&g.act.type!=='gmUlt')||g.act.tgt!==p){p.grabbed=-1;}else{p.vx=0;p.vy=0;p.onGround=false;p.tumble=true;p.stun=Math.max(p.stun,.2);inp.press.fill(false);inp.jump=false;return;}}
+  if(p.grabbed>=0){const g=G.players[p.grabbed];if(!g.act||(g.act.type!=='uncleThrow'&&g.act.type!=='uncleHold'&&g.act.type!=='blueUlt'&&g.act.type!=='ttUlt'&&g.act.type!=='iceRub'&&g.act.type!=='fairyStar'&&g.act.type!=='knightStorm'&&g.act.type!=='beastSpin'&&g.act.type!=='gmUlt'&&g.act.type!=='gmToss')||g.act.tgt!==p){p.grabbed=-1;}else{p.vx=0;p.vy=0;p.onGround=false;p.tumble=true;p.stun=Math.max(p.stun,.2);inp.press.fill(false);inp.jump=false;return;}}
   const ctrl=live&&!p.ko&&p.stun<=0&&p.charm<=0&&p.smile<=0&&p.frozen<=0&&!(p.act&&p.act.lock);
   const mx=ctrl?Math.max(-1,Math.min(1,inp.mx+inp.kx)):0;
   const spd=d.speed*(p.frizz>0?.5:1)*(p.act?p.act.slow:1)*(p.bunny>0?1.1:1);
@@ -1631,9 +1653,9 @@ function updPlayer(p,dt,live){
 // KOF-style body blocking: fighters can't walk through each other; walking into someone shoves them slowly.
 // Jumping over is still allowed (big height difference), and grabs / throws / KO bodies are left alone.
 var ARMOR=['gmDome','gmUlt','blueUlt','ttUlt','iceRub','fairyStar','knightStorm','beastSpin','ultLeap','knightLand','knightDrop','iceCast','beastUlt','uncleCharge','uncleKick','uncleHold','uncleThrow','momRoar','papaCast','papaRush','fairyUlt'];
-var CLEANUP=['gmRide','iceDash','uncle1','knight3'];
+var CLEANUP=['gmRide','gmToss','iceDash','uncle1','knight3'];
 var ULT_ACTS=['gmUlt','blueUlt','ttUlt','iceRub','fairyStar','knightStorm','beastSpin','ultLeap','knightLand'];
-var NOPUSH=['knightStorm','beastSpin','iceRub','fairyStar','tt1','tt3','ttStab','ttUlt','blueUlt','uncle1','uncleThrow','uncleHold','papa3','papaRush'];
+var NOPUSH=['gmToss','knightStorm','beastSpin','iceRub','fairyStar','tt1','tt3','ttStab','ttUlt','blueUlt','uncle1','uncleThrow','uncleHold','papa3','papaRush'];
 function pushApart(){const [a,b]=G.players;if(!a||!b||a.ko||b.ko||a.grabbed>=0||b.grabbed>=0)return;
   if((a.act&&NOPUSH.includes(a.act.type))||(b.act&&NOPUSH.includes(b.act.type)))return;
   if(Math.abs(a.y-b.y)>150)return;
