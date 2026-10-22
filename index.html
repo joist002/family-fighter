@@ -991,7 +991,7 @@ function startAct(p,type){const def=ACTS[type];
   if(type==='papa0'||type==='knight0'||type==='uncle0'||type==='beast0'||type==='blue0'||type==='tt0'){p.anim.row=G.time-p.anim.rowT<.75?(p.anim.row+1)%3:0;p.anim.rowT=G.time;}p.act={type,t:0,dur:def.dur,at:def.at,slow:def.slow,lock:!!def.lock,fired:false};}
 function startUlt(p){p.meter=0;p.ultT=7;p.act=null;G.freeze=p.d.ultFreeze||1.15;const uv=vidFor(p.d.key);
   if(uv){G.freeze=Math.min(4.2,uv.duration||3);try{uv.ultAt=performance.now();uv.currentTime=0;const pr=uv.play();pr&&pr.catch&&pr.catch(()=>{});}catch(e){}if(!play(p.d.ultSnd,1)){sfx('ult');voice(p,4);}}else{if(!(p.d.ultSnd&&play(p.d.ultSnd,1)))sfx('ult');voice(p,4);}
-  G.cutin={p,dur:G.freeze,go(){const o=opp(p);
+  G.cutin={p,dur:G.freeze,go(){const o=opp(p);if(uv&&p.d.key!=='blue')voice(p,4);// video chars: their own ult line plays as the move starts
     if(p.d.key==='uncle'){startAct(p,'uncleCharge');return;}
     if(p.d.key==='ice'){startAct(p,'iceCast');return;}
     if(p.d.key==='tt'){startAct(p,'ttUlt');p.inv=1;return;}
