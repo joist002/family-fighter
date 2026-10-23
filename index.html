@@ -2151,10 +2151,14 @@ function step(dt){
   G.minions=G.minions.filter(m=>{m.t+=sdt;m.life-=sdt;m.x+=m.dir*110*sdt;const o=opp(m.o);
     if(Math.abs(o.x-m.x)<60&&o.y>GY-140&&!o.ko&&o.inv<=0){hit(o,m.o,4,m.dir*120,-60);freeze(o,m.o);burst(m.x,GY-60,'#e2f6ff',20,'flake');return false;}
     if(m.life<=0){burst(m.x,GY-50,'#e2f6ff',10,'flake');return false;}return m.x>-60&&m.x<VW+60;});
-  G.storms=G.storms.filter(st=>{st.t+=sdt;st.life-=sdt;if(!st.mg)st.x+=st.dir*240*sdt;st.hitT-=sdt;const o=opp(st.o);
-    if(!st.mg&&!st.used&&st.t>.25&&Math.abs(o.x-st.x)<150&&o.y>GY-400&&!o.ko&&o.grabbed<0&&!(o.act&&o.act.type==='uncleCharge')&&G.mode==='fight'){st.used=true;st.mg=true;st.life=99;const p=st.o;
+  G.storms=G.storms.filter(st=>{st.t+=sdt;st.life-=sdt;if(!st.mg)st.x+=st.dir*240*sdt;st.hitT-=sdt;const o=opp(st.o),ow=st.o;
+    // the storm only lives while its caster is driving it: caster grabbed / KO'd, or the rub ended some other way -> it fades out instead of hanging on screen forever
+    if(st.mg&&!(ow.act&&ow.act.type==='iceRub'&&ow.act.st===st)){st.mg=false;st.life=Math.min(st.life,.45);st.sc=1;}
+    if(!st.fade&&(ow.ko||ow.grabbed>=0)){st.fade=1;st.used=true;st.life=Math.min(st.life,.45);}
+    const free=!ow.ko&&ow.grabbed<0&&ow.frozen<=0&&(!ow.act||ow.act.type==='iceCast');
+    if(!st.mg&&!st.used&&free&&!(o.act&&ULT_ACTS.includes(o.act.type))&&st.t>.25&&Math.abs(o.x-st.x)<150&&o.y>GY-400&&!o.ko&&o.grabbed<0&&!(o.act&&o.act.type==='uncleCharge')&&G.mode==='fight'){st.used=true;st.mg=true;st.life=99;const p=st.o;
       o.act=null;o.grabbed=p.idx;o.fly=0;o.charm=0;o.smile=0;o.tumble=true;p.act={type:'iceRub',t:0,dur:99,at:0,slow:0,lock:true,fired:true,st,tgt:o,e:0,hits:0,nx:.35,acc:0};p.inv=1;rubStart(p);play('eice',1);}
-    if(!st.mg&&st.t>.25&&st.life>.4&&st.hitT<=0&&Math.abs(o.x-st.x)<150&&o.y>GY-400&&!o.ko){st.hitT=.26;o.inv=0;hit(o,st.o,3.2,st.dir*160,-320,null,.4);}
+    if(!st.mg&&!st.fade&&st.t>.25&&st.life>.4&&st.hitT<=0&&Math.abs(o.x-st.x)<150&&o.y>GY-400&&!o.ko){st.hitT=.26;o.inv=0;hit(o,st.o,3.2,st.dir*160,-320,null,.4);}
     if(Math.random()<.7)G.parts.push({type:'flake',x:st.x+rnd(-150,150),y:GY-rnd(0,380),vx:st.dir*rnd(40,200),vy:rnd(-60,60),life:.7,max:.7,c:'#e2f6ff',s:rnd(5,10),g:0,rot:rnd(0,6),vr:rnd(-4,4)});
     return st.life>0&&st.x>-250&&st.x<VW+250;});
   // fairy ult rain
