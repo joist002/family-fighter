@@ -527,7 +527,7 @@ var CHARS={
 };
 var ROSTER=['tpgma','sabo','grandma','knight','beast','blue','tt','fairy','ice','papa','mom','uncle'];
 // on-screen character size; also lowers jumps so heads stay clear of the health bars
-var CS=.82;for(const k in CHARS){CHARS[k].h*=CS;CHARS[k].jump*=1.0;}for(const k in ANIM)ANIM[k].px/=CS;
+var CS=.82;for(const k in CHARS){CHARS[k].h*=CS;CHARS[k].jump*=1.08;}for(const k in ANIM)ANIM[k].px/=CS;
 var SIZE={tpgma:1,sabo:1.06,grandma:1,tt:1,blue:1.02,beast:.84,knight:1,fairy:.95,ice:1,uncle:1,papa:1.04,mom:1.035};for(const k in SIZE){CHARS[k].h*=SIZE[k];if(ANIM[k])ANIM[k].px/=SIZE[k];}
 
 /* ---------- canvas & sizing ---------- */
@@ -1207,10 +1207,10 @@ const ACTS={
   mom2:{dur:.45,at:.1,slow:0,lock:true,fire(p){const x=p.x-p.face*230;G.cars.push({o:p,x,dir:p.face,v:150,hit:false,life:2.6,t:0});burst(x,GY-80,'#ffffff',22,'dot');pop(x,GY-220,'大白來了！','#fff');sfx('ult');}},
   mom3:{dur:.4,at:.12,slow:.3,fire(p){play('emagic',.7,.9);shoot(p,{kind:'virtue',x:p.x+p.face*70,y:p.y-170,vx:p.face*620,vy:0,r:46,dmg:3,kbx:0,kby:0,life:2.2,
       extra:t=>{if(t.ccImm>0){pop(t.x,t.y-310,'不怕不怕！','#fff');return;}t.smile=2.6;t.ccImm=4.1;t.act=null;pop(t.x,t.y-310,'笑咪咪～','#fff0c4');burst(t.x,t.y-200,'#ffd25a',22,'star');G.parts.push({type:'impact',x:t.x,y:t.y-150,life:.35,max:.35,c:'#ffd25a',r:110,rot:0});G.parts.push({type:'ring',x:t.x,y:t.y-130,life:.5,max:.5,c:'#ffd25a',r:260});G.parts.push({type:'pillar',x:t.x,y:t.y,life:.8,max:.8,c:'#ffd25a'});}});sfx('heal');}},
-  momChant:{dur:1,at:0,slow:0,lock:true,fire(p){play('emagic3',.6,.9);pop(p.x,p.y-330,'唸唸唸……','#fff0c4');},tick(p,dt){if(Math.random()<dt*14)G.parts.push({type:'dot',x:p.x+rnd(-70,70),y:p.y-rnd(150,300),vx:0,vy:-80,life:.5,max:.5,c:'#ffd25a',s:9,g:0});},
+  momChant:{dur:1,at:0,slow:0,lock:true,fire(p){play('emagic3',.6,.9);pop(p.x,p.y-330,'唸唸唸……','#fff0c4');},tick(p,dt){if(Math.random()<dt*14)G.parts.push({type:'dot',x:p.x+p.face*rnd(40,120),y:p.y-rnd(190,250),vx:p.face*rnd(250,420),vy:rnd(-20,20),life:.5,max:.5,c:'#ffd25a',s:9,g:0});},
     end(p){startAct(p,'momRoar');}},
   momRoar:{dur:3,at:0,slow:0,lock:true,fire(p){p.act.nx=.3;p.act.k=0;p.act.flicks=0;sfx('boom');roarLayer(p);},tick(p,dt){const a=p.act;
-      if(Math.random()<dt*10)G.parts.push({type:'note',x:p.x+p.face*rnd(40,140),y:p.y-rnd(170,280),vx:p.face*rnd(60,160),vy:-rnd(40,120),g:0,life:.8,max:.8,s:rnd(22,34),c:Math.random()<.5?'#ffd25a':'#ff9a2a'});
+      if(Math.random()<dt*10)G.parts.push({type:'note',x:p.x+p.face*rnd(60,140),y:p.y-rnd(190,250),vx:p.face*rnd(380,560),vy:rnd(-30,30),g:0,life:.8,max:.8,s:rnd(22,34),c:Math.random()<.5?'#ffd25a':'#ff9a2a'});
       if(cpuIs(p)&&Math.random()<dt*[0,3,4.5,6][G.cpu])roarFlick(p);
       if(a.t<a.nx)return;a.nx+=.5;a.k++;
       shoot(p,{kind:'sound',x:p.x+p.face*80,y:p.y-200,vx:p.face*700,vy:0,r:52,dmg:1,kbx:p.face*70,kby:0,life:1.5,txt:''});tone(200,.1,'sawtooth',150,.03);},
@@ -1899,8 +1899,8 @@ function momPose(p){const a=p.act,an=p.anim;
     case'mom1':return['knives',clampI(t/a.dur*8,0,7)];
     case'mom2':return['phone',clampI(t/a.dur*8,0,7)];
     case'mom3':return['speech',clampI(t/a.dur*8,0,7)];
-    case'momChant':return['chant',(t*9|0)%8];
-    case'momRoar':return['chant',4+((t*10|0)%4)];}}
+    case'momChant':return['chant',[1,2,4,5][(t*8|0)%4]];
+    case'momRoar':{const s2=G.time-(a.lf||-9);return['chant',s2<.08?5:s2<.16?2:s2<.24?1:4];}}}
   if(!p.onGround)return['jump',p.vy<-500?2:p.vy<-100?3:p.vy<250?4:p.vy<600?5:6];
   if(an.land>0)return['jump',7];
   if(Math.abs(p.vx)>40)return['walk',(an.walk|0)%8];
@@ -1992,7 +1992,12 @@ function roarFlick(p){const a=p.act;if(!a||a.type!=='momRoar'||G.time-(a.lf||-9)
   shoot(p,{kind:'sound',x:p.x+f*80,y:p.y-200,vx:f*900,vy:0,r:72,dmg:1.6,kbx:f*110,kby:0,life:1.5,txt:a.flicks%2?NAGS[Math.random()*NAGS.length|0]:''});
   G.parts.push({type:'ring',x:p.x+f*80,y:p.y-200,life:.3,max:.3,c:'#ffbf3a',r:140});G.shake=Math.max(G.shake,.1);
   const n=220+((a.flicks*37)%160);tone(n,.14,'sawtooth',n*.7,.05);tone(n*1.5,.1,'square',null,.025,.03);if(a.flicks%4===0)voice(p,[1,3][(a.flicks/4|0)%2]);}
-function drawRoarHint(p){const a=p.act;if(!a||a.type!=='momRoar'||cpuIs(p))return;if((a.flicks||0)<3)drawHand(p.x+p.face*160,p.y-60,'swipe',G.time);
+function drawRoarString(p,a){const f=p.face,x0=p.x+f*95,y0=p.y-232,L=300,s2=G.time-(a.lf||-9),amp=s2<.6?34*Math.exp(-s2*6):3,T=G.time;
+  ctx.save();ctx.lineCap='round';ctx.globalCompositeOperation='lighter';
+  for(const[w,c,al]of[[14,'#ffbf3a',.35],[5,'#fff3c4',1]]){ctx.strokeStyle=c;ctx.globalAlpha=al;ctx.lineWidth=w;ctx.beginPath();
+    for(let i=0;i<=24;i++){const u=i/24,y=y0+Math.sin(u*Math.PI)*Math.sin(T*70)*amp;i?ctx.lineTo(x0+f*u*L,y):ctx.moveTo(x0,y);}ctx.stroke();}
+  ctx.globalAlpha=1;ctx.fillStyle='#ffe066';for(const u of[0,1]){ctx.beginPath();ctx.arc(x0+f*u*L,y0,7,0,7);ctx.fill();}ctx.restore();}
+function drawRoarHint(p){const a=p.act;if(!a||a.type!=='momRoar')return;drawRoarString(p,a);if(cpuIs(p))return;if((a.flicks||0)<3)drawHand(p.x+p.face*245,p.y-170,'swipe',G.time);
   ctx.save();for(let i=0;i<3;i++){const x=p.x+p.face*(150+i*40+((G.time*160)%40)),y=p.y-200;ctx.fillStyle=`rgba(255,191,58,${.7-i*.2})`;ctx.beginPath();ctx.moveTo(x,y-18);ctx.lineTo(x+p.face*18,y);ctx.lineTo(x,y+18);ctx.closePath();ctx.fill();}ctx.restore();}
 
 /* ---------- particles ---------- */
