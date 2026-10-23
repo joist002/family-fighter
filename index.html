@@ -2809,7 +2809,16 @@ var last=performance.now();
 function rebuildCanvas(){const n=document.createElement('canvas');n.id='cv';C.replaceWith(n);C=n;ctx=C.getContext('2d');resize();}
 C.addEventListener('contextlost',e=>e.preventDefault());
 var lostCheck=0;
+// safety net: a gesture layer covers the touch pads, so hide any layer whose move is no longer running (e.g. the move was interrupted by a hit)
+var LAYER_OWNER={gmLayer:a=>a.type==='gmUlt',roarLayer:a=>a.type==='momRoar',saboLayer:a=>a.type==='saboUlt',tpLayer:a=>a.type==='tpUlt'&&a.ph==='count',tpNeedleL:a=>a.type==='tpNeedle'&&a.ph==='aim'};
+function layerWatch(){const live=G.mode==='fight'||G.mode==='ko';
+  for(const id in LAYER_OWNER){const L=document.getElementById(id);if(!L||L.hidden)continue;if(!live||!G.players.some(p=>p.act&&LAYER_OWNER[id](p.act)))gHide(id);}
+  // older full-screen layers: only clear after the owner has had no move for a while (some finish a beat after the move)
+  const W=layerWatch.w||(layerWatch.w={}),now=performance.now(),chk=(k,on,q,end)=>{if(on&&(!live||!q||!q.act)){if(!W[k])W[k]=now;else if(now-W[k]>400){W[k]=0;end();}}else W[k]=0;};
+  chk('sl',SL.on,SL.p,slashEnd);chk('rb',RB.on,RB.p,rubEnd);chk('ss',SS.on,SS.p,starEnd);chk('hd',HD.on,HD.p,holdEnd);chk('rd',RD.on,RD.p,rideEnd);
+  if(SP.on&&!live)spinEnd();}
 function frame(t){const dt=Math.min(.033,(t-last)/1000);last=t;
+  try{layerWatch();}catch(e){}
   // the viewer can swap the page in place on an update; re-attach to whatever canvas and pads are on screen now
   if(!C.isConnected){const n=document.getElementById('cv');if(n){C=n;ctx=C.getContext('2d');resize();}}
   if(padEls.some(e=>!e.isConnected)){padEls.splice(0,2,document.getElementById('pad0'),document.getElementById('pad1'));if(G.players.length)buildPads();}
