@@ -671,13 +671,13 @@ function hit(t,src,dmg,kbx,kby,extra,stopMul=1){
     if(src&&src!==t&&!src.ko&&!G._refl){G._refl=1;hit(src,t,Math.max(1,dmg*.5),(src.x>=t.x?1:-1)*320,-220,u=>pop(u.x,u.y-260,'反彈！','#ff8a3a'));G._refl=0;}
     return true;}
   // guard: chip damage, guard meter, guard break. Ults, reflected hits and attacks from behind go through.
-  if(t.guarding&&src&&src!==t&&!(src.ultT>0)&&!G._refl&&t.gbreak<=0&&Math.sign((src.x-t.x)||t.face)===t.face&&(!(G.cpu&&t.idx===1)||Math.random()<[0,.4,.65,.85][G.cpu])){
-    const chip=dmg*(t.helper?.1:.2);t.hp=Math.max(0,t.hp-chip);t.gmeter=(t.gmeter||0)+dmg*3.4;t.gHitT=G.time;t.gshow=.32;t.flash=.06;
+  if(t.guarding&&t.gstill>=.4&&src&&src!==t&&!(src.ultT>0)&&!G._refl&&t.gbreak<=0&&Math.sign((src.x-t.x)||t.face)===t.face&&(!(G.cpu&&t.idx===1)||Math.random()<[0,.4,.65,.85][G.cpu])){
+    const chip=dmg*(t.helper?.2:.4);t.hp=Math.max(0,t.hp-chip);t.gmeter=(t.gmeter||0)+dmg*5;t.gHitT=G.time;t.gshow=.32;t.flash=.06;
     t.vx=-t.face*Math.min(320,120+Math.abs(kbx||0)*.35);G.hitstop=Math.max(G.hitstop,.05);
     play('heavy',.35,1.9);tone(1500,.07,'square',900,.04);tone(2300,.05,'triangle',null,.03,.02);
     const fx=t.x+t.face*70,fy=t.y-140;G.parts.push({type:'impact',x:fx,y:fy,life:.14,max:.14,c:'#9be8ff',r:60,rot:0});burst(fx,fy,'#e8f8ff',8,'spark');
     if(chip>=.5)G.nums.push({x:t.x+rnd(-20,20),y:t.y-250,v:Math.max(1,Math.round(chip)),t:0,c:'#9be8ff',big:false});
-    if(t.gmeter>=100){t.gmeter=0;t.gbreak=1.1;t.stun=1;t.guarding=false;t.act=null;G.shake=Math.max(G.shake,.4);G.hitstop=Math.max(G.hitstop,.12);
+    if(t.gmeter>=100){t.gmeter=0;t.gbreak=1.6;t.stun=1.5;t.guarding=false;t.act=null;G.shake=Math.max(G.shake,.4);G.hitstop=Math.max(G.hitstop,.12);
       play('crash',.8,1.2);noise(.25,.3,4000);pop(t.x,t.y-300,'破防','#ff5a4e');
       for(let i=0;i<22;i++){const a=rnd(-Math.PI*.8,Math.PI*.8)+(t.face<0?Math.PI:0),v=rnd(300,800);G.parts.push({type:'shard',x:fx,y:fy+rnd(-60,60),vx:Math.cos(a)*v,vy:Math.sin(a)*v-200,g:1600,life:.8,max:.8,s:rnd(8,16),c:'#bfeaff'});}}
     if(src.d.key==='tpgma'&&!src.ko)tpDrain(src,t,chip*.5);
@@ -1726,7 +1726,7 @@ function drawWokHead(p){if(!(p.wokHead>0)||p.ko)return;const hy=p.y-p.d.h*(p.d.h
   ctx.fillStyle='#7a4a20';ctx.save();ctx.rotate(.15);ctx.fillRect(R+2,-6,R*.7,12);ctx.restore();ctx.restore();
   if(Math.random()<.3)G.parts.push({type:'spark',x:p.x+rnd(-50,50),y:hy-rnd(10,50),vx:rnd(-60,60),vy:rnd(-160,-40),life:.3,max:.3,c:'#ff8a2a',s:10,g:0});}
 function drawGuard(p){if(p.ko||G.mode!=='fight')return;const f=p.face,cx=p.x+f*62,cy=p.y-p.d.h*.5,H=p.d.h*.62,k=Math.min(1,(p.gmeter||0)/100),T=G.time;
-  const on=p.gshow>0,idle=p.guarding&&p.gstill>.25;if(!on&&!idle&&!(p.gbreak>0)&&k<=0)return;
+  const on=p.gshow>0,idle=p.guarding&&p.gstill>=.4;if(!on&&!idle&&!(p.gbreak>0)&&k<=0)return;
   ctx.save();
   if(on||idle){const a=on?Math.min(1,p.gshow/.15)*.95:.22+Math.sin(T*3)*.05,col=k>.7?'255,120,100':k>.4?'255,210,120':'150,225,255';
     ctx.translate(cx,cy);ctx.scale(f,1);ctx.globalAlpha=a;const g=ctx.createLinearGradient(-20,0,30,0);g.addColorStop(0,`rgba(${col},0)`);g.addColorStop(1,`rgba(${col},.55)`);ctx.fillStyle=g;
