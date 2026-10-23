@@ -2006,7 +2006,7 @@ function splash(x,y){for(let i=0;i<14;i++){const an=rnd(-Math.PI*.95,-Math.PI*.0
 function burst(x,y,c,n,type){if(type==='dust'){for(let i=0;i<n;i++)G.parts.push({type,x:x+rnd(-40,40),y,vx:rnd(-160,160),vy:rnd(-90,-20),life:rnd(.35,.6),max:.6,c,s:rnd(10,18),g:0});return;}
   for(let i=0;i<n;i++){const a=rnd(0,Math.PI*2),s=rnd(120,480);G.parts.push({type,x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-120,life:rnd(.4,.8),max:.8,c,s:rnd(5,11),rot:rnd(0,6),vr:rnd(-8,8),g:600});}}
 // kids can't read yet: every former text pop becomes a manga-style symbol (impact frames by element, status marks)
-var MANGA=[['破防','broken',1.4],['中毒','poison',1],['佛','full',1.6],['十字固','impact',1.3,'#d99a4e'],['過肩摔','impact',1.5,'#ffe066'],['拋','wind',1.4],['套住','impact',1.25,'#ff8a3a'],['反彈','impact',1.2,'#ff8a3a'],['燙','fire',.9],['吸收','shield',1,'#3fe0a0'],['擋住','shield',1,'#9be8ff'],['被擋下','shield',1,'#ffffff'],['被打斷','broken',1],['不怕','immune',1],['凍住','frost',1],
+var MANGA=[['破防','broken',1.4],['抵銷','ice',1.7],['中毒','poison',1],['佛','full',1.6],['十字固','impact',1.3,'#d99a4e'],['過肩摔','impact',1.5,'#ffe066'],['拋','wind',1.4],['套住','impact',1.25,'#ff8a3a'],['反彈','impact',1.2,'#ff8a3a'],['燙','fire',.9],['吸收','shield',1,'#3fe0a0'],['擋住','shield',1,'#9be8ff'],['被擋下','shield',1,'#ffffff'],['被打斷','broken',1],['不怕','immune',1],['凍住','frost',1],
   ['完美雷擊','thunder',1.55,'#ffe066'],['萬雷天降','thunder',1.8],['百萬伏特','thunder',1.25],['扣殺','thunder',1.1],['無限爆裂','thunder',1.2],['爆裂','thunder',1.75,'#ffe066'],['電到炸毛','zap',1],
   ['冰封','ice',1.7],['冰晶撞擊','ice',1.25],['冰晶衝刺','ice',.95],['小雪人','ice',.8],['冰之飛行','ice',.85],
   ['心願成真','heart',1.4],['迷倒','love',1],['笑咪咪','smile',1],['變成小兔子','bunny',1],['噗噗','puff',.8],['流血','blood',1],
@@ -2151,7 +2151,16 @@ function step(dt){
   G.minions=G.minions.filter(m=>{m.t+=sdt;m.life-=sdt;m.x+=m.dir*110*sdt;const o=opp(m.o);
     if(Math.abs(o.x-m.x)<60&&o.y>GY-140&&!o.ko&&o.inv<=0){hit(o,m.o,4,m.dir*120,-60);freeze(o,m.o);burst(m.x,GY-60,'#e2f6ff',20,'flake');return false;}
     if(m.life<=0){burst(m.x,GY-50,'#e2f6ff',10,'flake');return false;}return m.x>-60&&m.x<VW+60;});
-  G.storms=G.storms.filter(st=>{st.t+=sdt;st.life-=sdt;if(!st.mg)st.x+=st.dir*240*sdt;st.hitT-=sdt;const o=opp(st.o),ow=st.o;
+  // two storms from different casters meet head-on -> they cancel each other out in a big ice burst
+  for(let i=0;i<G.storms.length;i++)for(let j=i+1;j<G.storms.length;j++){const s1=G.storms[i],s2=G.storms[j];
+    if(s1.o===s2.o||s1.mg||s2.mg||s1.fade||s2.fade||Math.abs(s1.x-s2.x)>130)continue;
+    const mx=(s1.x+s2.x)/2;for(const q of[s1,s2]){q.fade=1;q.used=true;q.life=Math.min(q.life,.45);}
+    G.shake=Math.max(G.shake,.6);G.flash=.3;G.flashCol='#dff6ff';G.hitstop=Math.max(G.hitstop,.12);sfx('boom');play('eice',1,.6);play('crash',.7,1.3);
+    G.parts.push({type:'ring',x:mx,y:GY-170,life:.6,max:.6,c:'#bfeaff',r:360});G.parts.push({type:'impact',x:mx,y:GY-170,life:.3,max:.3,c:'#ffffff',r:200,rot:0});
+    burst(mx,GY-170,'#e2f6ff',30,'flake');burst(mx,GY-170,'#ffffff',18,'star');
+    for(let k=0;k<24;k++){const an=rnd(0,Math.PI*2),v=rnd(300,900);G.parts.push({type:'shard',x:mx,y:GY-rnd(60,300),vx:Math.cos(an)*v,vy:Math.sin(an)*v-200,g:1400,life:.8,max:.8,s:rnd(8,16),rot:rnd(0,6),vr:rnd(-10,10),c:'#dff6ff'});}
+    pop(mx,GY-360,'抵銷','#e2f6ff');}
+  G.storms=G.storms.filter(st=>{st.t+=sdt;st.life-=sdt;if(st.fade)st.sc=Math.max(.2,st.life/.45);if(!st.mg)st.x+=st.dir*240*sdt;st.hitT-=sdt;const o=opp(st.o),ow=st.o;
     // the storm only lives while its caster is driving it: caster grabbed / KO'd, or the rub ended some other way -> it fades out instead of hanging on screen forever
     if(st.mg&&!(ow.act&&ow.act.type==='iceRub'&&ow.act.st===st)){st.mg=false;st.life=Math.min(st.life,.45);st.sc=1;}
     if(!st.fade&&(ow.ko||ow.grabbed>=0)){st.fade=1;st.used=true;st.life=Math.min(st.life,.45);}
