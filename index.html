@@ -488,7 +488,7 @@ try{['900 40px Cinzel','900 40px "Noto Serif TC"','700 20px "Noto Sans TC"'].for
 function shade(c,k){const n=parseInt(c.slice(1),16);return`rgb(${(n>>16&255)*k|0},${(n>>8&255)*k|0},${(n&255)*k|0})`;}
 
 var CHARS={
-  shark:{key:'shark',name:'菠菠-鯊魚',tag:'速度・電光刺客',color:'#3f8cff',light:'#cfe6ff',h:262,speed:400,jump:1000,grav:2300,dbl:false,natural:1,headY:.84,headX:0,ultFreeze:1.2,
+  shark:{key:'shark',hb:.8,name:'菠菠-鯊魚',tag:'速度・電光刺客',color:'#3f8cff',light:'#cfe6ff',h:262,speed:400,jump:1000,grav:2300,dbl:false,natural:1,headY:.84,headX:0,ultFreeze:1.2,
     atkCd:.3,skills:[['香蕉皮',7],['電光螺旋爪',6],['潛水奇襲',8]],ult:'鯊魚亂舞',btn:['香蕉','螺旋','潛水'],
     desc:['吃香蕉補一點血，再把香蕉皮丟到地上，對手踩到會滑倒','帶電的螺旋爪往前衝，打中後往左或往右滑，可以再衝，最多連四次','跳進地板潛水三秒，再按一次跳出來咬人；水裡普攻會跳出來抓，螺旋爪會直直往上衝'],udesc:'衝過去瘋狂亂抓，點螢幕抓更多下，最後變成巨大鯊魚一口咬下'},
   mermaid:{key:'mermaid',name:'芯芯-美人魚',tag:'漂浮・水系魔法',color:'#ff8fd0',light:'#ffe3f4',h:262,speed:330,jump:960,grav:2100,dbl:false,natural:1,headY:.86,headX:0,ultFreeze:1.3,
@@ -534,7 +534,7 @@ var CHARS={
 var ROSTER=['shark','mermaid','tpgma','sabo','grandma','knight','beast','blue','tt','fairy','ice','papa','mom','uncle'];
 // on-screen character size; also lowers jumps so heads stay clear of the health bars
 var CS=.82;for(const k in CHARS){CHARS[k].h*=CS;CHARS[k].jump*=1.08;}for(const k in ANIM)ANIM[k].px/=CS;
-var SIZE={shark:1,mermaid:1,tpgma:1,sabo:1.06,grandma:1,tt:1,blue:1.02,beast:.84,knight:1,fairy:.95,ice:1,uncle:1,papa:1.04,mom:1.035};for(const k in SIZE){CHARS[k].h*=SIZE[k];if(ANIM[k])ANIM[k].px/=SIZE[k];}
+var SIZE={shark:.86,mermaid:1,tpgma:1,sabo:1.06,grandma:1,tt:1,blue:1.02,beast:.84,knight:1,fairy:.95,ice:1,uncle:1,papa:1.04,mom:1.035};for(const k in SIZE){CHARS[k].h*=SIZE[k];if(ANIM[k])ANIM[k].px/=SIZE[k];}
 
 /* ---------- canvas & sizing ---------- */
 var C=document.getElementById('cv'),ctx=C.getContext('2d');
@@ -667,7 +667,7 @@ function startRound(){G.xfish=[];G.peels=[];TR.on=false;gHideAll();DG.on=false;r
 function startMatch(){loadAnims(G.picks);G.wins=[0,0];G.round=1;startRound();showUI('play');}
 
 /* ---------- combat ---------- */
-function hurt(p){return{x1:p.x-50,x2:p.x+50,y1:p.y-(p.bunny>0||p.lowT>0?150:230)*CS,y2:p.y}}
+function hurt(p){return{x1:p.x-50,x2:p.x+50,y1:p.y-(p.bunny>0||p.lowT>0?150:230*(p.d.hb||1))*CS,y2:p.y}}
 function hit(t,src,dmg,kbx,kby,extra,stopMul=1){
   if(t.ko||t.inv>0||G.mode!=='fight')return false;
   if(t.act&&t.act.type==='uncleCharge'){t.act.absorb+=dmg*(t.helper?.5:1);t.flash=.1;G.hitstop=Math.max(G.hitstop,.05);sfx('block');
@@ -751,11 +751,15 @@ var PAPA_SL=[{dx:95,dy:205,v:1,rot:-.35},{dx:105,dy:110,v:-1,rot:.3},{dx:85,dy:2
 function freeze(t,src){if(t.ccImm>0){pop(t.x,t.y-300,'不怕冷！','#fff');return;}t.iceSeed=(Math.random()*1e5)|0;play('eice',.7);t.frozen=2;t.ccImm=3.5;t.act=null;t.fly=0;pop(t.x,t.y-300,'凍住了！','#e2f6ff');burst(t.x,t.y-120,'#bfe9ff',16,'spark');sfx('block');}
 const ACTS={
   // 小跳躍爪擊: a short hop forward with a claw swipe
-  bs0:{dur:.46,at:.2,slow:0,lock:true,fire(p){const f=p.face;box(p,{x1:p.x+f*20,x2:p.x+f*200,y1:p.y-250,y2:p.y-20,dmg:4.5,kbx:f*200,kby:-140,extra:u=>bsClawFx(u,.55)});sfx('swing');tone(1800,.05,'square',900,.03);},
-    tick(p,dt){const a=p.act;if(a.t<.3)p.vx=p.face*430;else p.vx*=.8;if(a.t<.05&&p.onGround){p.vy=-360;p.onGround=false;}}},
+  // 爪擊兩段: 1) hop forward with a claw  2) spinning electric claw swipe that knocks back
+  bs0:{dur:.5,at:.16,slow:0,lock:true,fire(p){const f=p.face,st=p.act.st;
+      if(st===0)box(p,{x1:p.x+f*20,x2:p.x+f*190,y1:p.y-230,y2:p.y-10,dmg:4,kbx:f*160,kby:-100,extra:u=>bsClawFx(u,.5)});
+      else{box(p,{x1:p.x-f*20,x2:p.x+f*220,y1:p.y-240,y2:p.y,dmg:5,kbx:f*330,kby:-300,extra:u=>{bsClawFx(u,.65);bsZap(u.x,u.y-130);}});G.parts.push({type:'ring',x:p.x+f*90,y:p.y-120,life:.22,max:.22,c:'#7fc8ff',r:150});}
+      sfx('swing');tone(st?2200:1800,.05,'square',900,.03);},
+    tick(p,dt){const a=p.act;if(a.st===0){if(a.t<.04&&p.onGround){p.vy=-340;p.onGround=false;}p.vx=a.t<.26?p.face*420:p.vx*.8;}else p.vx=a.t<.2?p.face*260:p.vx*.8;}},
   // 吃香蕉、丟香蕉皮
   bsBanana:{dur:.95,at:.72,slow:0,lock:true,fire(p){const f=p.face,mine=G.peels.filter(q=>q.o===p);if(mine.length>=2){const k=G.peels.indexOf(mine[0]);G.peels.splice(k,1);}
-      G.peels.push({o:p,x:p.x+f*70,y:p.y-180,vx:f*340,vy:-420,st:'fly',t:0,life:9,rot:0});p.hp=Math.min(100,p.hp+2);p.heal=.3;sfx('jump');tone(700,.06,'triangle',500,.04);},
+      G.peels.push({o:p,x:p.x+f*70,y:p.y-180,vx:f*340,vy:-420,st:'fly',t:0,life:9,rot:0});p.hp=Math.min(100,p.hp+5);p.heal=.6;G.nums.push({x:p.x,y:p.y-p.d.h-40,v:'+5',t:0,c:'#5fe06a',hc:'#9dffb0',big:false});for(let i=0;i<8;i++)G.parts.push({type:'heart',x:p.x+rnd(-50,50),y:p.y-rnd(60,200),vx:0,vy:-rnd(80,160),life:.8,max:.8,c:'#9dffb0',s:rnd(8,12),g:0,rot:0,vr:0});sfx('heal');tone(700,.06,'triangle',500,.04);},
     tick(p){p.vx=0;if(p.act.t>.15&&p.act.t<.6&&Math.random()<.15)tone(300+Math.random()*80,.04,'square',null,.02);}},
   // 電光螺旋爪: electric drill dash; when it connects (even on a block) swipe left / right (or tap) to dash again, up to 4 times
   bsSpin:{dur:99,at:0,slow:0,lock:true,fire(p){const a=p.act;a.n=1;a.dir=p.face;a.ph='dash';a.dt0=0;a.hit=0;bsLayer(p);play('ethunder',.5,1.5);sfx('wind');},
@@ -1389,9 +1393,9 @@ function tryAct(p,a){const d=p.d;
   startAct(p,d.key==='grandma'?['gm0','gmDome','gmToss','gmRide'][a]:d.key==='sabo'?['sabo0','saboMill','saboArm','saboThrow'][a]:d.key==='tpgma'?['tp0','tpBow','tpSpin','tpNeedle'][a]:d.key==='mermaid'?['xm0','xmFish','xmBubble','xmTail'][a]:d.key==='shark'?['bs0','bsBanana','bsSpin','bsDive'][a]:d.key+a);
   if(d.key==='beast'&&a===1)p.tri={n:1,until:G.time+1.3};
 }
-function startAct(p,type){const def=ACTS[type];
+function startAct(p,type){const def=ACTS[type];let bsSt=0;if(type==='bs0'){bsSt=G.time-(p.anim.bsT||-9)<.75&&!p.anim.bsS?1:0;p.anim.bsS=bsSt;p.anim.bsT=G.time;}
   if(type==='uncle2')p.anim.wil=(p.anim.wil||0)+1;
-  if(type==='papa0'||type==='knight0'||type==='uncle0'||type==='beast0'||type==='blue0'||type==='tt0'||type==='gm0'||type==='sabo0'||type==='tp0'){p.anim.row=G.time-p.anim.rowT<.75?(p.anim.row+1)%3:0;p.anim.rowT=G.time;}p.act={type,t:0,dur:def.dur,at:def.at,slow:def.slow,lock:!!def.lock,fired:false};}
+  if(type==='papa0'||type==='knight0'||type==='uncle0'||type==='beast0'||type==='blue0'||type==='tt0'||type==='gm0'||type==='sabo0'||type==='tp0'){p.anim.row=G.time-p.anim.rowT<.75?(p.anim.row+1)%3:0;p.anim.rowT=G.time;}p.act={type,t:0,dur:def.dur,at:def.at,slow:def.slow,lock:!!def.lock,fired:false};if(type==='bs0'){p.act.st=bsSt;if(bsSt)p.act.dur=.5;else p.act.dur=.4;}}
 function startUlt(p){p.meter=0;p.ultT=7;p.act=null;G.freeze=p.d.ultFreeze||1.15;const uv=vidFor(p.d.key);
   if(uv){G.freeze=Math.min(4.2,uv.duration||3);try{uv.ultAt=performance.now();uv.currentTime=0;const pr=uv.play();pr&&pr.catch&&pr.catch(()=>{});}catch(e){}if(!play(p.d.ultSnd,1)){sfx('ult');voice(p,4);}}else{if(!(p.d.ultSnd&&play(p.d.ultSnd,1)))sfx('ult');voice(p,4);}
   G.cutin={p,dur:G.freeze,go(){const o=opp(p);if(uv&&p.d.key!=='blue')voice(p,4);// video chars: their own ult line plays as the move starts
@@ -2225,7 +2229,8 @@ function bsPose(p){const a=p.act,an=p.anim;
   if(p.charm>0||p.frozen>0)return['hurt',1];
   if(p.grabbed>=0||p.stun>0||p.tumble){if(!p.onGround)return['hurt',p.grabbed>=0?[5,6][(G.time*10|0)%2]:p.vy<-300?4:p.vy<200?5:p.vy<600?6:7];return['hurt',clampI(1+(1-p.stun/.22)*2,1,3)];}
   if(a){const t=a.t;switch(a.type){
-    case'bs0':case'bsLeap':return['atk',clampI(2+t/a.dur*9,2,11)];
+    case'bs0':return a.st?['atk',clampI(5+t/a.dur*6,5,10)]:['atk',clampI(1+t/a.dur*4,1,4)];
+    case'bsLeap':return['atk',clampI(2+t/a.dur*9,2,11)];
     case'bsBanana':return['banana',clampI(t/a.dur*8,0,7)];
     case'bsSpin':if(a.ph==='dash'){const s2=t-a.dt0;return['spiral',s2<.06?2:3+((G.time*14|0)%4)];}if(a.conn&&a.n<4)return['spiral',[4,5,6,5][((t-a.wt)*7|0)%4]];return['spiral',7];
     case'bsSpinUp':if(a.top)return['spiral',[4,5,6,5][((t-a.tt)*7|0)%4]];return['spiral',3+((G.time*14|0)%4)];
