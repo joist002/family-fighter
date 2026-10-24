@@ -500,7 +500,7 @@ function shade(c,k){const n=parseInt(c.slice(1),16);return`rgb(${(n>>16&255)*k|0
 var CHARS={
   pirate:{key:'pirate',name:'把把-海盜王',tag:'骨矛・蓄力擊飛',color:'#d8323c',light:'#ffd9b0',h:270,speed:300,jump:980,grav:2300,dbl:false,natural:1,headY:.86,headX:0,ultFreeze:1.2,
     atkCd:.34,skills:[['骷髏X斬',6],['橫矛反擊',7],['機關長矛',5]],ult:'海盜王擲矛',btn:['X斬','反擊','長矛'],
-    desc:['按住蓄力，放開往前衝出骷髏X斬把人挑飛；空中用就是往下的空中X斬','橫矛擺架勢，被打到就華麗反擊挑飛；空中用變成往前轉的飛輪','骨矛機關喀啦一聲變長，遠遠刺中對手'],udesc:'按住蓄力，氣焰越燒越旺，放開把巨大骨矛擲出去'},
+    desc:['按住蓄力，放開往前衝出骷髏X斬把人挑飛；空中用就是往下的空中X斬','橫矛擺架勢，被打到就華麗反擊挑飛；空中用變成往前轉的飛輪','按住骨矛機關一節一節伸長，放開刺出去，按越久刺越遠越痛'],udesc:'按住蓄力，氣焰越燒越旺，放開把巨大骨矛擲出去'},
   shark:{key:'shark',hb:.8,name:'菠菠-鯊魚',tag:'速度・電光刺客',color:'#3f8cff',light:'#cfe6ff',h:262,speed:400,jump:1000,grav:2300,dbl:false,natural:1,headY:.84,headX:0,ultFreeze:1.2,
     atkCd:.3,skills:[['香蕉皮',7],['電光螺旋爪',6],['潛水奇襲',8]],ult:'鯊魚亂舞',btn:['香蕉','螺旋','潛水'],
     desc:['吃香蕉補一點血，再把香蕉皮丟到地上，對手踩到會滑倒','帶電的螺旋爪往前衝，打中後往左或往右滑，可以再衝，最多連四次','跳進地板潛水三秒，再按一次跳出來咬人；水裡普攻會跳出來抓，螺旋爪會直直往上衝'],udesc:'衝過去瘋狂亂抓，點螢幕抓更多下，最後變成巨大鯊魚一口咬下'},
@@ -804,11 +804,18 @@ const ACTS={
     tick(p,dt){const a=p.act,o=opp(p);p.vx=p.face*620;p.vy=Math.min(p.vy,80);a.nx=(a.nx||0)-dt;
       if(Math.random()<.6)G.parts.push({type:'spark',x:p.x+rnd(-90,90),y:p.y-rnd(40,200),vx:-p.face*rnd(100,300),vy:rnd(-80,80),life:.25,max:.25,c:'#ffb347',s:rnd(8,12),g:0});
       if(a.nx<=0&&Math.abs(o.x-p.x)<160&&Math.abs((o.y-120)-(p.y-120))<210&&!o.ko){a.nx=.14;a.n=(a.n||0)+1;o.inv=0;const last=a.n>=5;hit(o,p,last?3:1.4,p.face*(last?380:80),last?-700:-120,null,last?1.2:.35);if(last)a.nx=99;}}},
-  // 機關長矛: the spear's mechanism clicks out, reaching very far
-  bpExtend:{dur:.95,at:.2,slow:0,lock:true,fire(p){tone(1400,.04,'square',null,.04);tone(900,.05,'square',null,.04,.06);voice(p,3);},
-    tick(p){const a=p.act,f=p.face;p.vx=0;if(a.t>=.26&&a.t<=.62&&!a.hit){const reach=250+Math.min(1,(a.t-.26)/.2)*260,o=opp(p);
-        if(o&&!o.ko&&(o.x-p.x)*f>0&&Math.abs(o.x-p.x)<reach&&Math.abs((o.y)-(p.y))<160){a.hit=1;box(p,{x1:p.x+f*20,x2:p.x+f*(reach+20),y1:p.y-230,y2:p.y-60,dmg:6,kbx:f*420,kby:-300,life:.05});
-          G.parts.push({type:'impact',x:o.x,y:o.y-150,life:.18,max:.18,c:'#ffe066',r:80,rot:0});play('heavy',.5,1.3);}}}},
+  // 機關長矛: hold and the bone spear clicks out segment by segment (longer the longer you hold); let go to thrust
+  bpExtend:{dur:99,at:0,slow:0,lock:true,fire(p){const a=p.act;a.ph='wind';a.c=0;a.L=0;a.seg=0;},
+    tick(p,dt){const a=p.act,f=p.face,t=a.t,o=opp(p);p.vx=0;
+      if(a.ph==='wind'){if(t>.22){a.ph='hold';tone(1400,.04,'square',null,.04);}return;}
+      if(a.ph==='hold'){const held=IN[p.idx].hold[3]||(cpuIs(p)&&a.c<Math.min(1.2,Math.max(.2,(Math.abs(o.x-p.x)-260)/520)));a.c+=dt;a.k=Math.min(1,a.c/1.2);a.L=40+a.k*560;
+        const sg=(a.L/56)|0;if(sg>a.seg){a.seg=sg;tone(900+sg*60,.035,'square',null,.04);G.parts.push({type:'spark',x:p.x+f*(215+a.L),y:p.y-140,vx:rnd(-60,60),vy:rnd(-120,0),life:.2,max:.2,c:'#ffe066',s:8,g:0});}
+        if(!held||a.c>1.6){a.ph='stab';a.st=t;voice(p,3);play('ewind',.45,1.6);}return;}
+      if(a.ph==='stab'){const s2=t-a.st,ext=Math.min(1,s2/.08)*90,reach=215+a.L+ext;a.reach=reach;
+        if(!a.hit&&s2<.2&&o&&!o.ko&&(o.x-p.x)*f>0&&Math.abs(o.x-p.x)<reach+40&&Math.abs(o.y-p.y)<170){a.hit=1;o.inv=0;
+          hit(o,p,5+5*a.k,f*(300+350*a.k),-300,null,1+a.k*.4);G.parts.push({type:'impact',x:o.x-f*20,y:p.y-140,life:.2,max:.2,c:'#ffe066',r:80+40*a.k,rot:0});play('heavy',.6,1.3);G.shake=Math.max(G.shake,.15+.2*a.k);}
+        if(s2>.32){a.ph='back';a.bt=t;}return;}
+      if(a.ph==='back'){const s2=t-a.bt;a.L=Math.max(0,a.L*(1-s2/.25));if(((s2*30)|0)%3===0&&s2<.25)tone(700,.02,'square',null,.02);if(s2>.38)p.act=null;}}},
   // 海盜王擲矛: hold to charge (the flames grow), release to hurl the giant bone spear
   bpUlt:{dur:99,at:0,slow:0,lock:true,fire(p){const a=p.act;a.ph='charge';a.c=0;a.held=0;bpUltLayer(p);play('efire3',.6,.8);},
     tick(p,dt){const a=p.act,t=a.t,o=opp(p);p.vx=0;p.inv=Math.max(p.inv,.2);
@@ -2373,12 +2380,23 @@ function bpDrawSpear(q){const f=Math.sign(q.vx)||1,k=.75+q.k*.5;ctx.save();ctx.g
   bpDraw('spear',(G.time*14|0)%8,q.x-f*40,q.y,k,f,1,Math.atan2(q.vy,Math.abs(q.vx))*f);
   if(Math.random()<.8)G.parts.push({type:'spark',x:q.x-f*rnd(60,200),y:q.y+rnd(-20,20),vx:-q.vx*.1,vy:rnd(-60,60),life:.3,max:.3,c:Math.random()<.5?'#ff8a2a':'#ffe066',s:rnd(8,14),g:0});}
 // flames behind him while charging the throw
+function bpDrawShaft(x0,y0,f,L,k){ctx.save();ctx.translate(x0,y0);ctx.scale(f,1);
+  // bone shaft with gold mechanism bands
+  const g=ctx.createLinearGradient(0,-9,0,9);g.addColorStop(0,'#c9b48a');g.addColorStop(.5,'#6e5233');g.addColorStop(1,'#2e2014');ctx.fillStyle=g;ctx.fillRect(0,-8,L,16);
+  ctx.strokeStyle='#1a1008';ctx.lineWidth=2;ctx.strokeRect(0,-8,L,16);
+  for(let x=28;x<L-10;x+=56){ctx.fillStyle='#d9a441';ctx.fillRect(x-6,-11,12,22);ctx.strokeStyle='#5a3a10';ctx.strokeRect(x-6,-11,12,22);ctx.fillStyle='#fff3c4';ctx.beginPath();ctx.arc(x,0,2.5,0,7);ctx.fill();}
+  // blade head with a skull
+  ctx.translate(L,0);ctx.fillStyle='#e8e2d4';ctx.strokeStyle='#3a2a1a';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-6,-18);ctx.lineTo(54,0);ctx.lineTo(-6,18);ctx.lineTo(4,0);ctx.closePath();ctx.fill();ctx.stroke();
+  ctx.fillStyle='#d9a441';ctx.beginPath();ctx.arc(-4,0,11,0,7);ctx.fill();ctx.stroke();ctx.fillStyle='#1a1008';ctx.beginPath();ctx.arc(-7,-3,2.4,0,7);ctx.arc(-1,-3,2.4,0,7);ctx.fill();
+  if(k>=1){ctx.globalCompositeOperation='lighter';glow(20,0,60,'#ffe066',.5+.3*Math.sin(G.time*20));}
+  ctx.restore();}
 function drawBpBack(p){const a=p.act;if(!a||a.type!=='bpUlt'||a.ph!=='charge')return;const k=a.k||0;bpDraw('aura',(G.time*12|0)%8,p.x,p.y-90-k*20,.55+k*.75,1,.45+k*.55);}
 function drawBpFx(p){const a=p.act,T=G.time;
   if(p.d.key==='pirate'&&a){
     if(a.type==='bpX'&&a.ph==='hold'){const k=a.k||0;ctx.save();ctx.globalCompositeOperation='lighter';glow(p.x,p.y-150,120+k*160+Math.sin(T*20)*10,k>=1?'#ffe066':'#ff4a3a',.25+k*.5);ctx.restore();
       ctx.save();ctx.lineWidth=8;ctx.strokeStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.arc(p.x,p.y-150,140,0,7);ctx.stroke();ctx.strokeStyle=k>=1?'#ffe066':'#ff6a3a';ctx.beginPath();ctx.arc(p.x,p.y-150,140,-Math.PI/2,-Math.PI/2+Math.PI*2*k);ctx.stroke();ctx.restore();}
     if(a.type==='bpStance'){ctx.save();ctx.strokeStyle='rgba(255,224,102,'+(.5+.3*Math.sin(T*16))+')';ctx.lineWidth=6;ctx.beginPath();ctx.ellipse(p.x+p.face*60,p.y-150,90,150,0,0,7);ctx.stroke();ctx.restore();}
+    if(a.type==='bpExtend'&&(a.L>0||a.ph==='stab')){const f=p.face,x0=p.x+f*182,y0=p.y-143,ext=a.ph==='stab'?Math.min(1,(a.t-a.st)/.08)*90:0,L=(a.L||0)+ext;bpDrawShaft(x0,y0,f,L,a.ph==='hold'?(a.k||0):1);}
     if(a.type==='bpWheel'){ctx.save();ctx.translate(p.x,p.y-130);ctx.rotate(T*18*p.face);ctx.globalCompositeOperation='lighter';ctx.strokeStyle='rgba(255,180,70,.7)';ctx.lineWidth=10;for(let i=0;i<2;i++){ctx.beginPath();ctx.arc(0,0,120,i*Math.PI,i*Math.PI+2.2);ctx.stroke();}ctx.restore();}
     if(a.type==='bpUlt'&&a.ph==='charge'){const k=a.k||0;ctx.save();ctx.globalCompositeOperation='lighter';glow(p.x,p.y-160,180+k*220,'#ff6a1a',.2+k*.45);ctx.restore();
       if(!cpuIs(p)&&!a.held)drawHand(p.idx===0?VW*.25:VW*.75,GY-120,'hold',T);
@@ -2399,7 +2417,7 @@ function bpPose(p){const a=p.act,an=p.anim;
     case'bpStance':return['stance',(G.time*8|0)%8];
     case'bpCounter':return['counter',clampI(t/a.dur*12,0,11)];
     case'bpWheel':return['wheel',(G.time*14|0)%8];
-    case'bpExtend':return['extend',clampI(t/a.dur*12,0,11)];
+    case'bpExtend':if(a.ph==='wind')return['extend',clampI(t/.22*5,0,5)];if(a.ph==='hold'||a.ph==='stab')return['extend',6];return['extend',clampI(7+(t-a.bt)/.38*4,7,11)];
     case'bpUlt':if(a.ph==='charge')return['throw',t<.35?clampI(t/.35*4,0,3):4+((G.time*6|0)%4)];return['release',clampI((t-a.tt)/.7*8,0,7)];}}
   if(!p.onGround)return['jump',p.vy<-500?2:p.vy<-100?3:p.vy<250?4:p.vy<600?5:6];
   if(an.land>0)return['jump',7];
