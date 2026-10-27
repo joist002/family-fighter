@@ -528,7 +528,7 @@ var CHARS={
   pirate:{key:'pirate',name:'把把-海盜王',tag:'骨矛・蓄力擊飛',color:'#d8323c',light:'#ffd9b0',h:270,speed:300,jump:980,grav:2300,dbl:false,natural:1,headY:.86,headX:0,ultFreeze:1.2,
     atkCd:.34,skills:[['骷髏X斬',6],['橫矛反擊',7],['機關長矛',5]],ult:'海盜王擲矛',btn:['X斬','反擊','長矛'],
     desc:['按住蓄力，放開往前衝出骷髏X斬把人挑飛；空中用就是往下的空中X斬','橫矛擺架勢，被打到就華麗反擊挑飛；空中用變成往前轉的飛輪','按住骨矛機關一節一節伸長，放開刺出去，按越久刺越遠越痛'],udesc:'按住蓄力，氣焰越燒越旺，放開把巨大骨矛擲出去'},
-  shark:{key:'shark',hb:.8,name:'菠菠-鯊魚',tag:'速度・電光刺客',color:'#3f8cff',light:'#cfe6ff',h:262,speed:400,jump:1000,grav:2300,dbl:false,natural:1,headY:.84,headX:0,ultFreeze:1.2,
+  shark:{key:'shark',name:'菠菠-鯊魚',tag:'速度・電光刺客',color:'#3f8cff',light:'#cfe6ff',h:262,speed:400,jump:1000,grav:2300,dbl:false,natural:1,headY:.84,headX:0,ultFreeze:1.2,
     atkCd:.3,skills:[['香蕉皮',7],['電光螺旋爪',6],['潛水奇襲',8]],ult:'鯊魚亂舞',btn:['香蕉','螺旋','潛水'],
     desc:['吃香蕉補一點血，再把香蕉皮丟到地上，對手踩到會滑倒','帶電的螺旋爪往前衝，打中後往左或往右滑，可以再衝，最多連四次','跳進地板潛水三秒，再按一次跳出來咬人；水裡普攻會跳出來抓，螺旋爪會直直往上衝'],udesc:'衝過去瘋狂亂抓，點螢幕抓更多下，最後變成巨大鯊魚一口咬下'},
   mermaid:{key:'mermaid',name:'芯芯-美人魚',tag:'漂浮・水系魔法',color:'#ff8fd0',light:'#ffe3f4',h:262,speed:330,jump:960,grav:2100,dbl:false,natural:1,headY:.86,headX:0,ultFreeze:1.3,
@@ -574,7 +574,10 @@ var CHARS={
 var ROSTER=['pirate','shark','mermaid','tpgma','sabo','grandma','knight','beast','blue','tt','fairy','ice','papa','mom','uncle'];
 // on-screen character size; also lowers jumps so heads stay clear of the health bars
 var CS=.82;for(const k in CHARS){CHARS[k].h*=CS;CHARS[k].jump*=1.08;}for(const k in ANIM)ANIM[k].px/=CS;
-var SIZE={pirate:1,shark:.86,mermaid:1,tpgma:1,sabo:1.06,grandma:1,tt:1,blue:1.02,beast:.84,knight:1,fairy:.95,ice:1,uncle:1,papa:1.04,mom:1.035};for(const k in SIZE){CHARS[k].h*=SIZE[k];if(ANIM[k])ANIM[k].px/=SIZE[k];}
+// real family heights (cm): 把把183 阿伯/SABO170 媽咪/阿嬤158 天天155 芯芯130 菠菠100 炫藍閃電200; 台北阿嬤 seated≈126
+var HEIGHT_CM={pirate:183,papa:183,uncle:170,sabo:170,mom:158,grandma:158,tpgma:126,tt:155,blue:200,mermaid:130,fairy:130,ice:130,shark:100,knight:100,beast:100};
+var SIZE={pirate:1.24,papa:1.084,uncle:.948,sabo:1.017,mom:1.08,grandma:1.028,tpgma:.80,tt:.994,blue:1.326,mermaid:.815,fairy:.844,ice:.888,shark:.654,knight:.77,beast:.638};
+for(const k in HEIGHT_CM)CHARS[k].hb=HEIGHT_CM[k]*(250/183)*.95/(230*CS);for(const k in SIZE){CHARS[k].h*=SIZE[k];if(ANIM[k])ANIM[k].px/=SIZE[k];}
 
 /* ---------- canvas & sizing ---------- */
 var C=document.getElementById('cv'),ctx=C.getContext('2d');
