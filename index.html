@@ -850,7 +850,7 @@ const ACTS={
       if(a.ph==='hold'){const held=IN[p.idx].hold[3]||(cpuIs(p)&&a.c<.5);a.c+=dt;a.k=Math.min(1,a.c/1);
         if(Math.random()<dt*(10+a.k*30))G.parts.push({type:'spark',x:p.x+f*rnd(150,300),y:p.y-127+rnd(-60,60),vx:-f*rnd(40,120),vy:rnd(-60,60),life:.35,max:.35,c:Math.random()<.5?'#7ff0ff':'#e8fbff',s:rnd(6,11),g:0});
         if(a.k>=1&&!a.full){a.full=1;tone(1600,.08,'triangle',null,.05);}
-        if(!held||a.c>2){a.ph='fly';a.ft=t;const k=a.k,FR=ANIM.pirate.f.extend[3],tip=Math.min(520,(FR[2]-FR[4])/ANIM.pirate.px);a.q={kind:'bpdragon',x:p.x+f*(tip-40),y:p.y-150,vx:f*(820+k*320),vy:0,r:55+k*30,dmg:4+4*k,kbx:f*40,kby:-60,life:.9+k*.5,k,t0:G.time,
+        if(!held||a.c>2){a.ph='fly';a.ft=t;const k=a.k,FR=ANIM.pirate.f.extend[1],tip=(FR[2]-FR[4])/ANIM.pirate.px;a.q={kind:'bpdragon',x:p.x+f*(tip-40),y:p.y-150,vx:f*(820+k*320),vy:0,r:55+k*30,dmg:4+4*k,kbx:f*40,kby:-60,life:.9+k*.5,k,t0:G.time,
             extra:u=>{const b=p.act;if(!b||b.type!=='bpDragon'||u.ko||ultBusy(u))return;b.ph='hook';b.ht=b.t;u.stun=Math.max(u.stun,2);u.vx=0;bpHookLayer(p);tone(500,.08,'square',1200,.06);play('emagic',.6,.7);}};
           shoot(p,a.q);play('ewind',.8,.8);sfx('shoot');voice(p,3);}
         return;}
@@ -2499,7 +2499,7 @@ function drawBpFx(p){const a=p.act,T=G.time;
       ctx.save();ctx.lineWidth=8;ctx.strokeStyle='rgba(0,0,0,.35)';ctx.beginPath();ctx.arc(p.x,p.y-150,140,0,7);ctx.stroke();ctx.strokeStyle=k>=1?'#ffe066':'#ff6a3a';ctx.beginPath();ctx.arc(p.x,p.y-150,140,-Math.PI/2,-Math.PI/2+Math.PI*2*k);ctx.stroke();ctx.restore();}
     if(a.type==='bpStance'){ctx.save();ctx.strokeStyle='rgba(255,224,102,'+(.5+.3*Math.sin(T*16))+')';ctx.lineWidth=6;ctx.beginPath();ctx.ellipse(p.x+p.face*60,p.y-150,90,150,0,0,7);ctx.stroke();ctx.restore();}
     if(a.type==='bpDragon'){const f=p.face,o=opp(p);
-      if(a.ph==='hold'){const k=a.k||0,FR=ANIM.pirate.f.extend[1+Math.round(k*2)],tp=FR?(FR[2]-FR[4])/ANIM.pirate.px-30:250;ctx.save();ctx.globalCompositeOperation='lighter';glow(p.x+f*tp,p.y-127,50+k*90+Math.sin(T*20)*8,'#3fd8ff',.35+k*.45);ctx.restore();}
+      if(a.ph==='hold'){const k=a.k||0,FR=ANIM.pirate.f.extend[1],tp=FR?(FR[2]-FR[4])/ANIM.pirate.px-30:250;ctx.save();ctx.globalCompositeOperation='lighter';glow(p.x+f*tp,p.y-127,50+k*90+Math.sin(T*20)*8,'#3fd8ff',.35+k*.45);ctx.restore();}
       if((a.ph==='hook'||a.ph==='pull')&&o){bpDraw('dragon',8+((T*14|0)%8),o.x+f*20,o.y-140,.6,a.ph==='pull'?-f:f,.9);}
       if(a.ph==='bite'&&o){const s2=a.t-a.pt;bpDraw('dragon',8+((T*14|0)%8),a.px0,a.py0-140-s2*700,.75,f,Math.max(0,1-s2*1.4),-f*Math.PI/2.3);}
       if(a.ph==='hook'&&!cpuIs(p)&&a.ix!=null){const s2=a.t-a.ht;bpDrawChoice(a.ix-f*95,a.iy,f,T,s2,'pull');bpDrawChoice(a.ix+f*95,a.iy,f,T,s2,'bite');drawHand(a.ix+f*95+20,a.iy+50,'tap',T);}}
@@ -2525,7 +2525,7 @@ function bpPose(p){const a=p.act,an=p.anim;
     case'bpWheel':return['wheel',(G.time*14|0)%8];
     case'bpExtend':return bpExtPose(p,a,t);
     case'bpKick':return['kick',clampI(t/a.dur*12,0,11)];
-    case'bpDragon':if(a.ph==='wind')return['extend',0,0,0];if(a.ph==='hold')return['extend',1+Math.round((a.k||0)*2),0,0];if(a.ph==='hook'||a.ph==='pull'){const o=opp(p);return bpExtPick(Math.max(300,o?Math.abs(o.x-p.x)-10:500),[3,4,5,6,7]);}if(a.ph==='bite')return['extend',10,0,0];if(a.ph==='fly')return['extend',t-a.ft<.12?4:t-a.ft<.3?6:7,0,0];const e=t-(a.et||t);return['extend',e<.08?8:e<.16?9:11,0,0];
+    case'bpDragon':if(a.ph==='wind')return['extend',0,0,0];if(a.ph==='hold'||a.ph==='fly'||a.ph==='hook'||a.ph==='pull')return['extend',1,0,0];if(a.ph==='bite')return['extend',10,0,0];return['extend',11,0,0];
     case'bpUlt':if(a.ph==='charge')return['throw',t<.35?clampI(t/.35*4,0,3):4+((G.time*6|0)%4)];return['release',clampI((t-a.tt)/.7*8,0,7)];}}
   if(!p.onGround)return['jump',p.vy<-500?2:p.vy<-100?3:p.vy<250?4:p.vy<600?5:6];
   if(an.land>0)return['jump',7];
