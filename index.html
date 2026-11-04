@@ -828,15 +828,19 @@ const ACTS={
   li2:{dur:.95,at:0,slow:0,lock:true,fire(p){const a=p.act;a.car=p.form==='car';a.n=0;a.nx=.18;if(a.car){a.dur=1.05;play('efire',.8,1);}},
     tick(p,dt){const a=p.act,f=p.face,t=a.t,o=opp(p);p.vx=0;
       if(!a.car){const T=[.24,.32,.4,.5];while(a.n<4&&t>=T[a.n]){const i=a.n++,last=i===3;
-          box(p,{x1:p.x+f*10,x2:p.x+f*230,y1:p.y-250,y2:p.y-10,dmg:last?3.5:1.8,kbx:f*(last?380:50),kby:last?-420:-40,extra:u=>liFx('fclaw',u.x,u.y-120,.7,f,.3,0,i*.5-.6)});
-          if(i===0)liFx('fclaw',p.x+f*170,p.y-130,.7,f,.32);sfx('swing');tone(1600+i*200,.03,'sawtooth',800,.03);}}
+          box(p,{x1:p.x+f*10,x2:p.x+f*230,y1:p.y-250,y2:p.y-10,dmg:last?3.5:1.8,kbx:f*(last?380:50),kby:last?-420:-40,extra:u=>liFx('fclaw',u.x,u.y-130,1.4,f,.32,0,i*.5-.6)});
+          if(i===0)liFx('fclaw',p.x+f*190,p.y-140,1.4,f,.34);sfx('swing');tone(1600+i*200,.03,'sawtooth',800,.03);}}
       else{if(t>.15&&t<.9){a.nx-=dt;if(a.nx<=0){a.nx=.12;if(o&&!o.ko&&(o.x-p.x)*f>40&&Math.abs(o.x-p.x)<560&&Math.abs(o.y-p.y)<260){o.inv=0;hit(o,p,1.4,f*90,-50,null,.3);}}
           if(Math.random()<.5)G.parts.push({type:'spark',x:p.x+f*rnd(200,520),y:p.y-rnd(60,200),vx:f*rnd(100,300),vy:-rnd(40,160),life:.35,max:.35,c:Math.random()<.5?'#ff8a2a':'#ffe066',s:rnd(8,14),g:0});}}}},
   // 招式3 人形: 獸王咆哮 breaks guard + short paralysis / 車型: flame explosion around itself
   li3:{dur:.9,at:0,slow:0,lock:true,fire(p){const a=p.act;a.car=p.form==='car';if(a.car)a.dur=.85;},
     tick(p){const a=p.act,f=p.face,t=a.t,o=opp(p);p.vx=0;
-      if(!a.car){if(!a.done&&t>=.3){a.done=1;liFx('froar',p.x+f*200,p.y-150,.9,f,.55);play('ewolf',1,.7);sfx('boom');G.shake=Math.max(G.shake,.35);G.flash=.1;G.flashCol='#ffd2a8';
-          if(o&&!o.ko&&(o.x-p.x)*f>-60&&Math.abs(o.x-p.x)<560&&Math.abs(o.y-p.y)<280&&!ultBusy(o)){o.gbreak=Math.max(o.gbreak||0,1.6);o.gmeter=0;o.inv=0;G._ng=1;hit(o,p,3,f*220,-120,u=>{u.stun=Math.max(u.stun,.9);pop(u.x,u.y-300,'震！','#ffd2a8');},1.2);G._ng=0;}}}
+      if(!a.car){if(!a.done&&t>=.3){a.done=1;play('ewolf',1,.7);G.shake=Math.max(G.shake,.25);G.flash=.08;G.flashCol='#ffd2a8';
+          // the roar flies out as a lion-head blast on an arc; it breaks guard and paralyses on contact
+          const dx=Math.max(260,Math.min(620,o?Math.abs(o.x-p.x):450)),T=.75,g=1500;
+          shoot(p,{kind:'liroar',x:p.x+f*110,y:p.y-190,vx:f*dx/T,vy:(o?(o.y-130)-(p.y-190):60)/T-.5*g*T,grav:g,r:70,dmg:3,kbx:f*220,kby:-160,life:1.6,ng:1,t0:G.time,
+            extra:u=>{if(ultBusy(u))return;u.gbreak=Math.max(u.gbreak||0,1.6);u.gmeter=0;u.stun=Math.max(u.stun,.9);pop(u.x,u.y-300,'震！','#ffd2a8');},
+            pop:q=>{liFx('fhit',q.x,q.y,.6,1,.35);G.shake=Math.max(G.shake,.35);sfx('boom');}});}}
       else if(!a.done&&t>=.28){a.done=1;liFx('fburst',p.x,p.y-90,.95,f,.6);sfx('boom');play('efire3',.9,.9);G.shake=Math.max(G.shake,.5);G.flash=.15;G.flashCol='#ffb070';
           if(o&&!o.ko&&Math.abs(o.x-p.x)<270&&Math.abs(o.y-p.y)<300){o.inv=0;hit(o,p,9,Math.sign((o.x-p.x)||f)*520,-900,u=>{u.tumble=true;},1.5);}}}},
   // 大招 焰獅亂舞: rush in, then a chain that keeps switching human / car, ending with a flaming lion finisher
@@ -850,7 +854,7 @@ const ACTS={
       while(a.n<=g){const i=a.n++;if([5,9,16,20].includes(i)){liFx('ftrans',p.x,p.y-120,.75,f,.3);tone(800,.05,'square',1600,.04);}
         if(i===19)liFx('fmuzzle',p.x+f*170,p.y-150,.6,f,.25);
         if(H[i]&&o2&&!o2.ko){const last=i===21;o2.inv=0;hit(o2,p,H[i],last?f*600:f*40,last?-1350:-40,last?u=>{u.tumble=true;pop(u.x,u.y-320,'焰獅！','#ffb070');}:null,last?1.8:.5);
-          liFx(last?'ffin':i>=6&&i<=8?'fhit':i===19?'fhit':'fclaw',o2.x,o2.y-130,last?1:.6,f,last?.6:.25);if(last){G.shake=.7;G.flash=.25;G.flashCol='#ffd2a8';sfx('boom');a.tgt=null;}else sfx('swing');}}
+          const fk=last?'ffin':i>=6&&i<=8?'fhit':i===19?'fhit':'fclaw';liFx(fk,o2.x,o2.y-130,last?1:fk==='fclaw'?1.3:.6,f,last?.6:.28);if(last){G.shake=.7;G.flash=.25;G.flashCol='#ffd2a8';sfx('boom');a.tgt=null;}else sfx('swing');}}
       if(t-a.ct>2.15){p.act=null;p.form='human';liBtns(p);}},
     end(p){p.form='human';liBtns(p);}},
   // 普攻連段 (row 0/1/2 each a press): 2 + 4 + 3 hits, the last launches
@@ -2549,6 +2553,8 @@ function liStep(dt){G.lifx=G.lifx.filter(q=>(q.t+=dt)<q.life);}
 function liDraw(key,idx,x,y,k,f,alpha,rot){const A=ANIM.lion,im=A&&A.img[key];if(!im||!im.complete||!im.naturalWidth)return;const fr=A.f[key]&&A.f[key][idx];if(!fr)return;
   ctx.save();ctx.globalAlpha=alpha==null?1:alpha;ctx.translate(x,y);if(rot)ctx.rotate(rot*(f||1));ctx.scale(k*(f||1),k);ctx.drawImage(im,fr[0],fr[1],fr[2],fr[3],-fr[4],-fr[5],fr[2],fr[3]);ctx.restore();}
 function liDrawShot(q){const f=Math.sign(q.vx)||1;ctx.save();ctx.globalCompositeOperation='lighter';glow(q.x,q.y,80,'#ff8a2a',.5);ctx.restore();liDraw('fshot',(G.time*14|0)%8,q.x-f*30,q.y,.5,f,1);}
+function liDrawRoar(q){const f=Math.sign(q.vx)||1,an=Math.atan2(q.vy,Math.abs(q.vx));ctx.save();ctx.globalCompositeOperation='lighter';glow(q.x,q.y,130,'#ffb347',.45);ctx.restore();
+  liDraw('froar',3+((G.time*12|0)%5),q.x-f*40,q.y,.85,f,1,an);if(Math.random()<.6)G.parts.push({type:'spark',x:q.x-f*rnd(40,120),y:q.y+rnd(-50,50),vx:-f*rnd(60,180),vy:rnd(-60,60),life:.3,max:.3,c:Math.random()<.5?'#ffb347':'#ffe066',s:rnd(7,12),g:0});}
 function liSwap(p){p.form=p.form==='car'?'human':'car';liFx('ftrans',p.x,p.y-120,.75,1,.35);tone(700,.06,'square',1500,.05);play('emagic3',.4,1.6);liBtns(p);}
 var LI_ICONS={human:['lblade','dash','slashes','sound'],car:['cannon','truck','firejet','boom2']};
 function liBtns(p){if(!p||p.d.key!=='lion'||cpuIs(p))return;const el=padEls[p.idx];if(!el)return;const I=LI_ICONS[p.form==='car'?'car':'human'];
@@ -3138,6 +3144,7 @@ function drawIceBlockOld(p){const h=p.d.h+20,w=150,x=p.x-w/2,y=p.y-h,a=Math.min(
   ctx.strokeStyle='rgba(255,255,255,.7)';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(x+18,y+20);ctx.lineTo(x+40,y+h*.4);ctx.moveTo(x+w-30,y+h*.55);ctx.lineTo(x+w-18,y+h*.8);ctx.stroke();ctx.restore();}
 function drawProj(q){
   if(q.kind==='lishot'){liDrawShot(q);return;}
+  if(q.kind==='liroar'){liDrawRoar(q);return;}
   if(q.kind==='bpspear'){bpDrawSpear(q);return;}
   if(q.kind==='bpdragon'){bpDrawDragon(q);return;}
   if(q.kind==='xbub'||q.kind==='bigbub'){drawXmBubble(q.x,q.y,q.r,q.t,q.kind==='bigbub');return;}
