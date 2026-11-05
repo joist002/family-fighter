@@ -601,7 +601,7 @@ var CS=.82;for(const k in CHARS){CHARS[k].h*=CS;CHARS[k].jump*=1.08;}for(const k
 // real family heights (cm): 把把183 阿伯/SABO170 媽咪/阿嬤158 天天155 芯芯130 菠菠100 炫藍閃電200; 台北阿嬤 seated≈126
 var HEIGHT_CM={lion:100,pirate:183,papa:183,uncle:170,sabo:170,mom:158,grandma:158,tpgma:126,tt:155,blue:200,mermaid:130,fairy:130,ice:130,shark:100,knight:100,beast:100};
 var SIZE={lion:.611,pirate:1.24,papa:1.084,uncle:.948,sabo:1.017,mom:1.08,grandma:1.028,tpgma:.80,tt:.994,blue:1.326,mermaid:.815,fairy:.844,ice:.888,shark:.654,knight:.77,beast:.638};
-for(const k in HEIGHT_CM)CHARS[k].hb=HEIGHT_CM[k]*(250/183)*.95/(230*CS);for(const k in SIZE){CHARS[k].h*=SIZE[k];if(ANIM[k])ANIM[k].px/=SIZE[k];}
+for(const k in HEIGHT_CM)CHARS[k].hb=Math.max(1,HEIGHT_CM[k]*(250/183)*.95/(230*CS));for(const k in SIZE){CHARS[k].h*=SIZE[k];if(ANIM[k])ANIM[k].px/=SIZE[k];}
 
 /* ---------- canvas & sizing ---------- */
 var C=document.getElementById('cv'),ctx=C.getContext('2d');
@@ -742,7 +742,7 @@ function teamFill(i){const t=G.team[i];if(t[1]==null){const pool=ROSTER.filter(k
 function startMatch(){Object.keys(VFX_SRC).forEach(vfxImg);teamInit();teamFill(0);teamFill(1);G.cur=[0,0];G.carry=[null,null];G.picks=[G.team[0][0],G.team[1][0]];loadAnims(G.picks);G.wins=[0,0];G.round=1;startRound();showUI('play');try{buildPads();drawBG();}catch(e){}}
 
 /* ---------- combat ---------- */
-function hurt(p){const w=p.form==='car'?85:50;return{x1:p.x-w,x2:p.x+w,y1:p.y-(p.bunny>0||p.lowT>0?150:230*(p.d.hb||1)*(p.form==='car'?.8:1))*CS,y2:p.y}}
+function hurt(p){const w=p.form==='car'?85:50;return{x1:p.x-w,x2:p.x+w,y1:p.y-(p.bunny>0||p.lowT>0?150:230*(p.d.hb||1))*CS,y2:p.y}}
 function hit(t,src,dmg,kbx,kby,extra,stopMul=1){
   if(t.act&&t.act.type==='bpKick'&&t.act.t<.8&&!t.ko&&G.mode==='fight'&&src&&src!==t){if(G.time-(t.act.dg||-9)>.3){t.act.dg=G.time;pop(t.x,t.y-320,'閃！','#c8f4ff');bpGhost(t);tone(1800,.05,'triangle',2600,.04);}return false;}
   if(t.ko||t.inv>0||G.mode!=='fight')return false;
