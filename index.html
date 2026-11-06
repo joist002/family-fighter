@@ -1619,9 +1619,18 @@ const ACTS={
       if(!IN[p.idx].hold[0]||a.t>=2.6){const k=a.charge/1.4;a.released=a.t;a.dur=a.t+.3;
         shoot(p,{kind:'heart',x:p.x+p.face*70,y:p.y-130*CS,vx:p.face*(660-k*160),vy:0,r:16+k*34,dmg:Math.round(4+k*7),kbx:p.face*(180+k*300),kby:-80-k*260,life:2,pw:k>.7?3:k>.3?2:1});sfx('shoot');}}},
   // three hearts, each a different speed, wrapped in pink aura
-  fairy1:{dur:.8,at:.08,slow:.3,fire(p){play('emagic',.7);p.act.n=0;},tick(p){const a=p.act,T=[.18,.34,.5],SP=[520,720,900];
-      while(a.n<3&&a.t>=T[a.n]){const i=a.n++;shoot(p,{kind:'heart',x:p.x+p.face*80,y:p.y-(150-i*18)*CS,vx:p.face*SP[i],vy:0,r:20,dmg:4,kbx:p.face*200,kby:-90,life:2});sfx('shoot');}
-      if(Math.random()<.5)G.parts.push({type:'heart',x:p.x+rnd(-70,70),y:p.y-rnd(40,220)*CS,vx:rnd(-30,30),vy:-120,life:.6,max:.6,c:'#ff8fcb',s:rnd(6,11),g:0,rot:0,vr:0});}},
+  // 愛心連射 (interactive): little hearts gather around her — keep tapping to add more (max 8), then they all fly at the enemy. Getting hit cancels it.
+  fairy1:{dur:99,at:0,slow:0,lock:true,fire(p){const a=p.act;a.ph='gather';a.n=1;a.lt=0;a.sent=0;a.nx=0;play('emagic',.7);fairyHeartLayer(p);tone(1200,.06,'triangle',1500,.05);},
+    tick(p,dt){const a=p.act,t=a.t;p.vx=0;
+      if(a.ph==='gather'){if(cpuIs(p)&&Math.random()<dt*6)fairyHeartTap(p);
+        if(Math.random()<.4)G.parts.push({type:'heart',x:p.x+rnd(-70,70),y:p.y-rnd(40,220)*CS,vx:rnd(-30,30),vy:-120,life:.6,max:.6,c:'#ff8fcb',s:rnd(6,11),g:0,rot:0,vr:0});
+        if((a.n>=8&&t-a.lt>.25)||t-a.lt>1.1||t>2.6){a.ph='fire';a.ft=t;gHide('fairyHeartL');play('emagic3',.6,1.3);}return;}
+      if(a.ph==='fire'){a.nx-=dt;if(a.sent<a.n&&a.nx<=0){a.nx=.07;const i=a.sent++,an=G.time*3+i/a.n*6.283,f=p.face;
+          shoot(p,{kind:'heart',x:p.x+Math.cos(an)*110,y:p.y-150*CS+Math.sin(an)*70,vx:f*620,vy:rnd(-120,120),r:18,dmg:1.6,kbx:f*90,kby:-60,life:2.2,
+            upd:(q,dt2)=>{const o=opp(q.o);if(o&&!o.ko){const dx=o.x-q.x,dy=(o.y-130)-q.y,L=Math.hypot(dx,dy)||1;q.vx+=(dx/L*820-q.vx)*Math.min(1,dt2*4);q.vy+=(dy/L*820-q.vy)*Math.min(1,dt2*4);}}});
+          sfx('shoot');tone(900+i*120,.04,'triangle',null,.04);}
+        if(a.sent>=a.n&&t-a.ft>.3+a.n*.07)p.act=null;}},
+    end(p){gHide('fairyHeartL');}},
   // flies up while whipping up the petal tornado
   fairy2:{dur:1.1,at:.35,slow:.6,hover:250,fire(p){shoot(p,{kind:'tornado',x:p.x+p.face*80,y:GY-80,vx:p.face*320,vy:0,r:72,dmg:7,kbx:p.face*120,kby:-1350,life:3.6,extra:t=>{t.floatT=1.5;t.slam={dmg:5,src:p};pop(t.x,t.y-300,'捲上天！','#ffd3ea');}});sfx('wind');}},
   // floats and heals over time; any hit cancels it
@@ -2621,6 +2630,15 @@ function liSwap(p){p.form=p.form==='car'?'human':'car';liFx('ftrans',p.x,p.y-120
 var LI_ICONS={human:['lblade','dash','slashes','sound'],car:['cannon','truck','firejet','boom2']};
 function liBtns(p){if(!p||p.d.key!=='lion'||cpuIs(p))return;const el=padEls[p.idx];if(!el)return;const I=LI_ICONS[p.form==='car'?'car':'human'];
   for(let k=0;k<4;k++){const b=el.querySelector('.b[data-a="'+k+'"]');const sv=b&&b.querySelector('svg');if(sv)sv.outerHTML=svgI(I[k]);}}
+function fairyHeartTap(p){const a=p.act;if(!a||a.type!=='fairy1'||a.ph!=='gather'||a.n>=8||a.t-a.lt<.07)return;a.n++;a.lt=a.t;a.pop=1;
+  tone(1000+a.n*140,.06,'triangle',1400+a.n*140,.05);burst(p.x,p.y-160*CS,'#ff8fcb',6,'spark');}
+function fairyHeartLayer(p){if(cpuIs(p))return;const L=gLayer('fairyHeartL',false,p.idx);L.onpointerdown=e=>{e.preventDefault();fairyHeartTap(p);};}
+function drawFairyHearts(p){const a=p.act;if(!a||a.type!=='fairy1')return;const n=a.ph==='gather'?a.n:a.n-a.sent;
+  for(let i=0;i<n;i++){const k=a.ph==='gather'?i:a.sent+i,an=G.time*3+k/a.n*6.283,x=p.x+Math.cos(an)*130,y=p.y-150*CS+Math.sin(an)*85,R=24+(i===a.n-1&&a.t-a.lt<.15?8:0);
+    glow(x,y,R*1.8,'#ff3d9a',.35);const hg=ctx.createLinearGradient(x,y-R*1.4,x,y+R);hg.addColorStop(0,'#ffe3f2');hg.addColorStop(.35,'#ff7cc0');hg.addColorStop(1,'#d81b6a');
+    ctx.save();ctx.fillStyle=hg;heartPath(ctx,x,y,R);ctx.fill();ctx.strokeStyle='#fff';ctx.lineWidth=3;ctx.stroke();ctx.fillStyle='rgba(255,255,255,.85)';ctx.beginPath();ctx.ellipse(x-R*.42,y-R*.5,R*.22,R*.13,-.6,0,7);ctx.fill();ctx.restore();}
+  if(a.ph==='gather'&&!cpuIs(p)){drawHand(p.x+p.face*190,p.y-60,'tap',G.time);
+    ctx.save();ctx.font='900 34px '+NUMF;ctx.textAlign='center';ctx.lineWidth=6;ctx.strokeStyle=INK;ctx.fillStyle='#ffd3ea';ctx.strokeText(a.n+'/8',p.x,p.y-320);ctx.fillText(a.n+'/8',p.x,p.y-320);ctx.restore();}}
 function drawLiFx(p){if(p===G.players[G.players.length-1])for(const q of G.lifx){const n=ANIM.lion.f[q.key]?ANIM.lion.f[q.key].length:8,span=n-q.from,i=q.from+clampI(q.t/q.life*span,0,span-1);liDraw(q.key,i,q.x,q.y,q.k,q.f,1,q.rot);}
   const a=p.act;if(p.d.key!=='lion'||!a)return;
   if(a.type==='liUlt'&&a.ph==='drive'&&!cpuIs(p)){const s2=a.t-a.dt;if(s2<1.6&&!a.rams){const u=Math.sin(G.time*4);drawHand(p.x+u*140,p.y-60,'tap',G.time);
@@ -2780,6 +2798,7 @@ function updPlayer(p,dt,live){
   if(p.act&&p.act.type==='tt0'&&inp.press[0])p.act.mash=G.time;
   if(p.act&&p.tri&&(p.act.type==='beast1'||p.act.type==='beastT2')&&inp.press[1]&&p.act.t>.08)p.act.buf=true;
   if(p.act&&p.act.type==='bpDragon'&&p.act.ph==='hook'&&inp.press[3])p.act.choice='pull';
+  if(p.act&&p.act.type==='fairy1'&&inp.press[1])fairyHeartTap(p);
   inp.press.fill(false);
   p._pn=G.parts.length;
   if(p.act){p.act.t+=dt;const def=ACTS[p.act.type];
@@ -2969,7 +2988,7 @@ function fairyPose(p){const a=p.act,an=p.anim;
   if(p.stun>0||p.tumble){if(!p.onGround)return['hurt',p.vy<0?4:5];return['hurt',clampI(1+(1-p.stun/.22)*3,1,3)];}
   if(a){const t=a.t;switch(a.type){
     case'fairy0':return a.released?['atk',clampI(5+(t-a.released)/.3*4,5,8)]:['atk',clampI(1+(a.charge||0)/1.4*3,1,3)];
-    case'fairy1':return['shot',clampI(t/a.dur*8,0,7)];
+    case'fairy1':return a.ph==='gather'?['shot',1+((t*6|0)%2)]:['shot',clampI(3+(t-a.ft)/.5*5,3,7)];
     case'fairy2':return['tornado',t<.15?1:t>.95?7:2+((t*10|0)%5)];
     case'fairy3':return['heal',t<.15?1:t>2.45?7:2+((t*6|0)%5)];
     case'fairyUlt':return['ult',t<.2?0:t>2.2?7:1+((t*5|0)%6)];}}
@@ -3369,7 +3388,7 @@ function drawCombos(){G.players.forEach((p,i)=>{if(p.comboShow<=0||p.combo<2)ret
 function drawTexts(){for(const t of G.texts){const k=t.t/.9,pin=t.t<.1?.4+t.t/.1*.75:1.15-Math.min(.15,(t.t-.1)*.6);ctx.save();ctx.globalAlpha=1-Math.max(0,k-.65)/.35;ctx.translate(t.x,t.y+40);ctx.scale(pin*t.sz*.78,pin*t.sz*.78);drawMark(t,k);ctx.restore();}}
 function zig(x0,y0,x1,y1,n,amp,seed){const R=seeded(seed),pts=[[x0,y0]];for(let i=1;i<n;i++){const f=i/n,nx=-(y1-y0),ny=x1-x0,L=Math.hypot(nx,ny)||1,o=(R()-.5)*2*amp;pts.push([x0+(x1-x0)*f+nx/L*o,y0+(y1-y0)*f+ny/L*o]);}pts.push([x1,y1]);return pts;}
 function polyFill(pts,fill,stroke,lw){ctx.beginPath();pts.forEach((q,i)=>i?ctx.lineTo(q[0],q[1]):ctx.moveTo(q[0],q[1]));ctx.closePath();if(fill){ctx.fillStyle=fill;ctx.fill();}if(stroke){ctx.lineWidth=lw;ctx.strokeStyle=stroke;ctx.lineJoin='round';ctx.stroke();}}
-function heartPath(x,y,r){ctx.beginPath();ctx.moveTo(x,y+r*.9);ctx.bezierCurveTo(x-r*1.5,y-r*.1,x-r*.9,y-r*1.25,x,y-r*.45);ctx.bezierCurveTo(x+r*.9,y-r*1.25,x+r*1.5,y-r*.1,x,y+r*.9);ctx.closePath();}
+function heartPath(x,y,r,s4){if(typeof x==='object'){const c=x;x=y;y=r;const s=s4;c.beginPath();c.moveTo(x,y+s*.9);c.bezierCurveTo(x-s*1.6,y-s*.2,x-s*.7,y-s*1.4,x,y-s*.5);c.bezierCurveTo(x+s*.7,y-s*1.4,x+s*1.6,y-s*.2,x,y+s*.9);c.closePath();return;}ctx.beginPath();ctx.moveTo(x,y+r*.9);ctx.bezierCurveTo(x-r*1.5,y-r*.1,x-r*.9,y-r*1.25,x,y-r*.45);ctx.bezierCurveTo(x+r*.9,y-r*1.25,x+r*1.5,y-r*.1,x,y+r*.9);ctx.closePath();}
 function dropPath(x,y,r,ang){ctx.save();ctx.translate(x,y);ctx.rotate(ang||0);ctx.beginPath();ctx.moveTo(0,-r*1.6);ctx.bezierCurveTo(r*.9,-r*.4,r,r*.2,r,r*.35);ctx.arc(0,r*.35,r,0,Math.PI);ctx.bezierCurveTo(-r,r*.2,-r*.9,-r*.4,0,-r*1.6);ctx.closePath();ctx.restore();}
 function speedRays(R0,R1,n,col,lw,rot){ctx.strokeStyle=col;ctx.lineWidth=lw;ctx.lineCap='round';for(let i=0;i<n;i++){const a=rot+i/n*Math.PI*2,r1=R1*(.75+((i*37)%9)/30);ctx.beginPath();ctx.moveTo(Math.cos(a)*R0,Math.sin(a)*R0);ctx.lineTo(Math.cos(a)*r1,Math.sin(a)*r1);ctx.stroke();}}
 var INK='#0d1236';
@@ -3549,7 +3568,7 @@ function render(){
   ctx.save();if(G.shake>0)ctx.translate(rnd(-1,1)*G.shake*40,rnd(-1,1)*G.shake*30);
   if(G.rains.length){ctx.fillStyle='rgba(255,124,192,.12)';ctx.fillRect(0,0,VW,GY);}
   G.waves.forEach(drawWave);
-  const order=[...G.players].sort((a,b)=>(a.act?1:0)-(b.act?1:0));G.players.forEach(drawXmFloor);G.players.forEach(drawBpBack);order.forEach(drawPlayer);drawXmFish();drawPeels();drawVfx();G.players.forEach(p=>{drawLiFx(p);drawBpFx(p);drawBsFx(p);drawXmFx(p);drawGmFx(p);drawTpFx(p);drawBlueFx(p);});G.fx.forEach(drawFx);
+  const order=[...G.players].sort((a,b)=>(a.act?1:0)-(b.act?1:0));G.players.forEach(drawXmFloor);G.players.forEach(drawBpBack);order.forEach(drawPlayer);drawXmFish();drawPeels();drawVfx();G.players.forEach(p=>{drawFairyHearts(p);drawLiFx(p);drawBpFx(p);drawBsFx(p);drawXmFx(p);drawGmFx(p);drawTpFx(p);drawBlueFx(p);});G.fx.forEach(drawFx);
   G.minions.forEach(drawMinion);G.cars.forEach(drawCar);G.storms.forEach(drawStorm);G.proj.forEach(drawProj);drawParts();drawTexts();drawNums();
   ctx.restore();
   if(G.hitstop>.09){ctx.save();ctx.globalAlpha=.08;ctx.fillStyle='#fff';ctx.fillRect(0,0,VW,C.height/(dpr*sc));ctx.restore();}
@@ -3563,7 +3582,7 @@ function rebuildCanvas(){const n=document.createElement('canvas');n.id='cv';C.re
 C.addEventListener('contextlost',e=>e.preventDefault());
 var lostCheck=0;
 // safety net: a gesture layer covers the touch pads, so hide any layer whose move is no longer running (e.g. the move was interrupted by a hit)
-var LAYER_OWNER={liUltL:a=>a.type==='liUlt'&&a.ph==='drive',bpHookL:a=>a.type==='bpDragon'&&a.ph==='hook',bpUltL:a=>a.type==='bpUlt'&&a.ph==='charge',bsLayer:a=>a.type==='bsSpin'||a.type==='bsSpinUp',bsUltL:a=>a.type==='bsUlt'&&(a.ph==='rage'||(a.ph==='fin'&&!a.bite)),xmLayer:a=>a.type==='xmUlt'&&a.ph==='spin',gmLayer:a=>a.type==='gmUlt',roarLayer:a=>a.type==='momRoar',saboLayer:a=>a.type==='saboUlt',tpLayer:a=>a.type==='tpUlt'&&a.ph==='count',tpNeedleL:a=>a.type==='tpNeedle'&&a.ph==='aim'};
+var LAYER_OWNER={fairyHeartL:a=>a.type==='fairy1'&&a.ph==='gather',liUltL:a=>a.type==='liUlt'&&a.ph==='drive',bpHookL:a=>a.type==='bpDragon'&&a.ph==='hook',bpUltL:a=>a.type==='bpUlt'&&a.ph==='charge',bsLayer:a=>a.type==='bsSpin'||a.type==='bsSpinUp',bsUltL:a=>a.type==='bsUlt'&&(a.ph==='rage'||(a.ph==='fin'&&!a.bite)),xmLayer:a=>a.type==='xmUlt'&&a.ph==='spin',gmLayer:a=>a.type==='gmUlt',roarLayer:a=>a.type==='momRoar',saboLayer:a=>a.type==='saboUlt',tpLayer:a=>a.type==='tpUlt'&&a.ph==='count',tpNeedleL:a=>a.type==='tpNeedle'&&a.ph==='aim'};
 function layerWatch(){const live=G.mode==='fight'||G.mode==='ko';
   for(const id in LAYER_OWNER){const L=document.getElementById(id);if(!L||L.hidden)continue;if(!live||!G.players.some(p=>p.act&&LAYER_OWNER[id](p.act)))gHide(id);}
   // older full-screen layers: only clear after the owner has had no move for a while (some finish a beat after the move)
