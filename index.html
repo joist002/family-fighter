@@ -849,13 +849,13 @@ const ACTS={
   // 招式2 火焰斗篷: the cloak bursts into flame — attackers get burnt, she takes less damage
   ni2:{dur:.7,at:0,slow:0,lock:true,fire(p){p.cape=4.5;play('efire3',.7,1.1);G.flash=.08;G.flashCol='#ff9a5a';},tick(p){p.vx=0;}},
   // 招式3 懸掛指火: jump up and hang from the ceiling for 3 s, pointing a fire beam straight down (move left/right with the stick)
-  ni3:{dur:99,at:0,slow:0,lock:true,fire(p){const a=p.act;a.ph='up';a.y0=p.y;a.nx=0;play('ewind',.6,1.2);},
+  ni3:{dur:99,at:0,slow:0,lock:true,end(p){niTapOff();},fire(p){const a=p.act;a.ph='up';a.y0=p.y;a.nx=0;play('ewind',.6,1.2);},
     tick(p,dt){const a=p.act,t=a.t,o=opp(p),kc=1.25/ANIM.nini.px,hy=62+315*kc;p.vy=0;
-      if(a.ph==='up'){const u=Math.min(1,t/.45);p.y=a.y0+(hy-a.y0)*(1-(1-u)*(1-u));p.vx=0;if(u>=1){a.ph='hang';a.ht=t;play('efire3',.5,1.4);}return;}
-      if(a.ph==='hang'){p.y=hy;const mx=cpuIs(p)?(o?Math.sign(o.x-p.x)*(Math.abs(o.x-p.x)>30?1:0):0):(IN[p.idx].mx||0);p.vx=mx*260;
-        const bx=p.x+p.face*63*kc;a.nx-=dt;if(a.nx<=0){a.nx=.15;if(o&&!o.ko&&Math.abs(o.x-bx)<70+(o.form==='car'?40:0)){o.inv=0;hit(o,p,1.3,Math.sign(o.x-bx||1)*60,-40,null,.3);burst(o.x,o.y-120,'#ffb347',5,'spark');}}
-        if(Math.random()<.5)G.parts.push({type:'spark',x:bx+rnd(-20,20),y:GY-rnd(0,20),vx:rnd(-160,160),vy:-rnd(80,260),life:.35,max:.35,c:Math.random()<.5?'#ff8a2a':'#ffe066',s:rnd(6,10),g:600});
-        if(t-a.ht>3){a.ph='end';a.et=t;}return;}
+      if(a.ph==='up'){const u=Math.min(1,t/.45);p.y=a.y0+(hy-a.y0)*(1-(1-u)*(1-u));p.vx=0;if(u>=1){a.ph='hang';a.ht=t;a.beams=[];a.lt=-9;niTapOn(p);play('efire3',.5,1.4);}return;}
+      // hang in place; every tap on the screen fires a fire beam from her finger toward that spot
+      if(a.ph==='hang'){p.y=hy;p.vx=0;if(cpuIs(p)&&o&&Math.random()<dt*3)niBeam(p,o.x+rnd(-40,40),o.y-110);
+        a.beams=a.beams.filter(b=>(b.t+=dt)<.28);
+        if(t-a.ht>3){a.ph='end';a.et=t;niTapOff();}return;}
       if(a.ph==='end'){const u=Math.min(1,(t-a.et)/.42);p.y=hy+(GY-hy)*u*u;p.vx=0;if(u>=1){p.y=GY;p.onGround=true;p.act=null;}}}},
   // 大招 召喚大野狼: a big bad wolf with its own HP chases and claws the enemy
   niUlt:{dur:1.3,at:0,slow:0,lock:true,fire(p){p.act.n=0;play('emagic3',.8,.8);},tick(p){const a=p.act,f=p.face;p.vx=0;
@@ -2674,6 +2674,18 @@ G.nifx=[];G.wolves=[];
 function niFx(key,x,y,k,f,life,rot){G.nifx.push({key,x,y,k,f:f||1,t:0,life:life||.4,rot:rot||0});}
 function niDraw(key,idx,x,y,kx,ky,alpha,rot){const A=ANIM.nini,im=A&&A.img[key];if(!im||!im.complete||!im.naturalWidth)return;const fr=A.f[key]&&A.f[key][idx|0];if(!fr)return;
   ctx.save();ctx.globalAlpha=alpha==null?1:alpha;ctx.translate(x,y);if(rot)ctx.rotate(rot);ctx.scale(kx,ky);ctx.drawImage(im,fr[0],fr[1],fr[2],fr[3],-fr[4],-fr[5],fr[2],fr[3]);ctx.restore();}
+// tap-to-aim beam while hanging: listens to taps on the play field (not on the control pads)
+var NI_TAP=null;
+function niTapOn(p){niTapOff();if(cpuIs(p))return;NI_TAP=e=>{if(e.target.closest&&e.target.closest('.pad,.b,button,.glayer'))return;const a=p.act;if(!a||a.type!=='ni3'||a.ph!=='hang'){niTapOff();return;}niBeam(p,e.clientX/sc,e.clientY/sc);};
+  window.addEventListener('pointerdown',NI_TAP,true);}
+function niTapOff(){if(NI_TAP){window.removeEventListener('pointerdown',NI_TAP,true);NI_TAP=null;}}
+function niFinger(p){const kc=1.25/ANIM.nini.px;return{x:p.x+p.face*63*kc,y:p.y-130*kc};}
+function niBeam(p,tx,ty){const a=p.act;if(!a||a.ph!=='hang'||a.t-a.lt<.12)return;a.lt=a.t;const F=niFinger(p);let dx=tx-F.x,dy=ty-F.y;if(dy<40)dy=40;
+  const L0=Math.hypot(dx,dy),ux=dx/L0,uy=dy/L0,L=(GY-F.y)/uy;p.face=dx>=0?1:-1;const F2=niFinger(p);
+  a.beams.push({x:F2.x,y:F2.y,ux,uy,L,t:0});play('efire',.35,1.6);tone(1500,.04,'sawtooth',700,.03);
+  const o=opp(p);if(o&&!o.ko){const cx=o.x,cy=o.y-110,px=cx-F2.x,py=cy-F2.y,proj=Math.max(0,Math.min(L,px*ux+py*uy)),d=Math.hypot(px-ux*proj,py-uy*proj);
+    if(d<85){o.inv=0;hit(o,p,2,ux*160,-80,null,.4);burst(F2.x+ux*proj,F2.y+uy*proj,'#ffb347',8,'spark');}}
+  burst(F2.x+ux*L,GY-10,'#ff8a2a',6,'spark');}
 function niAppleBurst(q){niFx('fahit',q.x,Math.min(q.y,GY-60),1.1,1,.45);sfx('boom');G.shake=Math.max(G.shake,.3);
   for(let i=0;i<5;i++){const an=-Math.PI/2+(i-2)*.45;shoot(q.o,{kind:'nimini',x:q.x,y:Math.min(q.y,GY-70),vx:Math.cos(an)*rnd(260,420),vy:Math.sin(an)*rnd(420,620),grav:1500,r:22,dmg:1.5,kbx:Math.cos(an)*120,kby:-160,life:1.4,pw:1,t0:G.time,
     upd:(m)=>{if(m.y>GY-18&&m.vy>0){m.life=0;burst(m.x,GY-10,'#ff8a2a',5,'spark');}}});}}
@@ -2709,9 +2721,11 @@ function drawNiFx(p){if(p===G.players[G.players.length-1]){for(const q of G.nifx
         ctx.strokeStyle='#fff';ctx.lineWidth=2;ctx.strokeRect(x0-3,y0-3,bw+6,16);ctx.restore();}}}
   const a=p.act;
   if(p.cape>0&&!p.ko){const n=8,i=(G.time*12|0)%n;ctx.save();ctx.globalCompositeOperation='lighter';glow(p.x,p.y-130,150,'#ff6a1a',.3+.1*Math.sin(G.time*12));ctx.restore();niDraw('fcape',i,p.x,p.y-120,.75*p.face,.75,Math.min(1,p.cape));}
-  if(a&&a.type==='ni3'&&a.ph==='hang'){const kc=1.25/ANIM.nini.px,fx=p.x+p.face*63*kc,fy=p.y-130*kc,L=GY-fy,fr=ANIM.nini.f.fbeam[0];
-    ctx.save();ctx.globalCompositeOperation='lighter';glow(fx,GY-20,90,'#ff8a2a',.5);ctx.restore();if(fr)niDraw('fbeam',(G.time*14|0)%8,fx,fy+L/2,1.3,L/fr[3],1);
-    if(!cpuIs(p)&&a.t-a.ht<1.4){const u=Math.sin(G.time*4);drawHand(p.x+u*120,GY-80,'tap',G.time);}}}
+  if(a&&a.type==='ni3'&&a.ph==='hang'){const fr=ANIM.nini.f.fbeam[0];
+    for(const b of a.beams||[]){const al=Math.max(0,1-b.t/.28),ang=Math.atan2(b.uy,b.ux)-Math.PI/2;ctx.save();ctx.globalCompositeOperation='lighter';glow(b.x+b.ux*b.L,b.y+b.uy*b.L,70,'#ff8a2a',.5*al);ctx.restore();
+      if(fr)niDraw('fbeam',(G.time*14|0)%8,b.x+b.ux*b.L/2,b.y+b.uy*b.L/2,1.2,b.L/fr[3],al,ang);}
+    const F=niFinger(p);ctx.save();ctx.globalCompositeOperation='lighter';glow(F.x,F.y,26+Math.sin(G.time*20)*5,'#ffcf6a',.7);ctx.restore();
+    const o=opp(p);if(!cpuIs(p)&&o&&a.t-a.ht<1.5)drawHand(o.x+30,o.y-60,'tap',G.time);}}
 function niPose(p){const a=p.act,an=p.anim;
   if(p.ko){if(!p.onGround)return['hurt',clampI(4+(G.time*8)%4,4,7)];return['hurt',[8,9,10,11][clampI(an.koG/.18,0,3)]];}
   if(isWinner(p)){const t=G.phaseT-(G.koType==='ko'?1.2:.3);return['win',t<.8?clampI(t/.1,0,7):[4,5,6,7][(t*3|0)%4]];}
