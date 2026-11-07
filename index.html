@@ -2695,14 +2695,14 @@ function niStep(dt){G.nifx=G.nifx.filter(q=>(q.t+=dt)<q.life);
     if(w.st==='spawn'){if(w.t>.45){w.st='walk';w.t=0;}return true;}
     if(w.st==='hit'){if(w.t>.45){w.st='walk';w.t=0;}return true;}
     w.face=o.x>=w.x?1:-1;
-    if(w.st==='walk'){const d=Math.abs(o.x-w.x);if(d>170)w.x+=w.face*270*dt;else if(!o.ko&&G.mode==='fight'){w.st='claw';w.t=0;w.n=0;}return true;}
-    if(w.st==='claw'){const T=[.3,.55,.8];while(w.n<3&&w.t>=T[w.n]){const i=w.n++;if(!o.ko&&Math.abs(o.x-w.x)<230&&o.y>GY-420){o.inv=0;hit(o,w.o,2.5,w.face*(i===2?420:140),i===2?-420:-90,null,.6);niFx('fwclaw',o.x,o.y-130,.85,w.face,.3);}sfx('slice');}
-      if(w.t>1.1){w.st='walk';w.t=0;}return true;}
+    if(w.st==='walk'){const d=Math.abs(o.x-w.x);w.cd=Math.max(0,(w.cd||0)-dt);if(d>170)w.x+=w.face*210*dt;else if(!o.ko&&G.mode==='fight'&&w.cd<=0){w.st='claw';w.t=0;w.n=0;}return true;}
+    if(w.st==='claw'){const T=[.5,.95,1.4];while(w.n<3&&w.t>=T[w.n]){const i=w.n++;if(!o.ko&&Math.abs(o.x-w.x)<230&&o.y>GY-420){o.inv=0;hit(o,w.o,i===2?2.5:1.5,w.face*(i===2?420:140),i===2?-420:-90,null,.6);niFx('fwclaw',o.x,o.y-130,.85,w.face,.3);}sfx('slice');}
+      if(w.t>1.8){w.st='walk';w.t=0;w.cd=1.2;}return true;}
     return true;});}
 var WOLF_K=1.5;
 function drawNiFx(p){if(p===G.players[G.players.length-1]){for(const q of G.nifx){const n=ANIM.nini.f[q.key]?ANIM.nini.f[q.key].length:8,i=clampI(q.t/q.life*n,0,n-1);niDraw(q.key,i,q.x,q.y,q.k*q.f,q.k,1,q.rot);}
     for(const w of G.wolves||[]){const A=ANIM.nini,k=WOLF_K/A.px*1.25/1.25,al=w.st==='spawn'?Math.min(1,w.t/.45):w.st==='die'?Math.max(0,1-w.t/.5):1;let sh='wwalk',i=(G.time*10|0)%8;
-      if(w.st==='claw'){sh='wclaw';i=clampI(w.t/1.1*12,0,11);}else if(w.st==='hit'){sh='whit';i=clampI(w.t/.45*8,0,7);}else if(w.st==='die'){sh='whit';i=7;}
+      if(w.st==='claw'){sh='wclaw';i=clampI(w.t/1.8*12,0,11);}else if(w.st==='hit'){sh='whit';i=clampI(w.t/.45*8,0,7);}else if(w.st==='die'){sh='whit';i=7;}
       ctx.save();ctx.fillStyle='rgba(0,0,0,.3)';ctx.beginPath();ctx.ellipse(w.x,GY+4,110,16,0,0,7);ctx.fill();ctx.restore();
       if(w.flash>0){ctx.save();ctx.filter='brightness(2)';}niDraw(sh,i,w.x,w.y,k*w.face,k,al);if(w.flash>0)ctx.restore();
       if(w.st!=='die'){const bw=150,x0=w.x-bw/2,y0=w.y-250;ctx.save();ctx.fillStyle='rgba(0,0,0,.55)';ctx.fillRect(x0-3,y0-3,bw+6,16);ctx.fillStyle='#ff5a3a';ctx.fillRect(x0,y0,bw*Math.max(0,w.hp/w.max),10);
